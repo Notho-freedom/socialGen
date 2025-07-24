@@ -1,6 +1,9 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { Button } from "@/components/ui/button"
+import { AnimatedButton } from "@/components/animated-button"
+import { FadeIn } from "@/components/fade-in"
+import { StaggerContainer } from "@/components/stagger-container"
+import { AnimatedCounter } from "@/components/animated-counter"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -121,10 +124,10 @@ export default function HomePage() {
   ]
 
   const stats = [
-    { value: "10K+", label: "Utilisateurs actifs" },
-    { value: "500K+", label: "Posts générés" },
-    { value: "98%", label: "Satisfaction client" },
-    { value: "24/7", label: "Support disponible" },
+    { value: 10000, label: "Utilisateurs actifs", suffix: "+" },
+    { value: 500000, label: "Posts générés", suffix: "+" },
+    { value: 98, label: "Satisfaction client", suffix: "%" },
+    { value: 24, label: "Support disponible", suffix: "/7" },
   ]
 
   return (
@@ -135,32 +138,51 @@ export default function HomePage() {
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-primary/5">
         <div className="container mx-auto px-4 py-20 lg:py-32">
           <div className="mx-auto max-w-4xl text-center">
-            <Badge variant="secondary" className="mb-6">
-              <Sparkles className="mr-2 h-4 w-4" />
-              Nouveau : IA GPT-4 intégrée
-            </Badge>
-            <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
-              Créez du contenu
-              <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent"> viral </span>
-              en quelques clics
-            </h1>
-            <p className="mb-8 text-xl text-muted-foreground sm:text-2xl">
-              Générez automatiquement des posts optimisés pour tous vos réseaux sociaux avec l'intelligence
-              artificielle. Gagnez du temps, augmentez votre engagement.
-            </p>
-            <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-              <Button size="lg" className="text-lg" asChild>
-                <Link href="/dashboard">
-                  Commencer gratuitement
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-              <Button variant="outline" size="lg" className="text-lg bg-transparent">
-                <Play className="mr-2 h-5 w-5" />
-                Voir la démo
-              </Button>
-            </div>
-            <p className="mt-4 text-sm text-muted-foreground">Essai gratuit 14 jours • Aucune carte bancaire requise</p>
+            <FadeIn delay={200}>
+              <Badge variant="secondary" className="mb-6 animate-pulse">
+                <Sparkles className="mr-2 h-4 w-4" />
+                Nouveau : IA GPT-4 intégrée
+              </Badge>
+            </FadeIn>
+
+            <FadeIn delay={400}>
+              <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
+                Créez du contenu
+                <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent animate-pulse">
+                  {" "}
+                  viral{" "}
+                </span>
+                en quelques clics
+              </h1>
+            </FadeIn>
+
+            <FadeIn delay={600}>
+              <p className="mb-8 text-xl text-muted-foreground sm:text-2xl">
+                Générez automatiquement des posts optimisés pour tous vos réseaux sociaux avec l'intelligence
+                artificielle. Gagnez du temps, augmentez votre engagement.
+              </p>
+            </FadeIn>
+
+            <FadeIn delay={800}>
+              <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+                <AnimatedButton size="lg" className="text-lg group" asChild>
+                  <Link href="/dashboard">
+                    Commencer gratuitement
+                    <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                  </Link>
+                </AnimatedButton>
+                <AnimatedButton variant="outline" size="lg" className="text-lg bg-transparent group">
+                  <Play className="mr-2 h-5 w-5 transition-transform group-hover:scale-110" />
+                  Voir la démo
+                </AnimatedButton>
+              </div>
+            </FadeIn>
+
+            <FadeIn delay={1000}>
+              <p className="mt-4 text-sm text-muted-foreground">
+                Essai gratuit 14 jours • Aucune carte bancaire requise
+              </p>
+            </FadeIn>
           </div>
         </div>
       </section>
@@ -168,67 +190,81 @@ export default function HomePage() {
       {/* Stats Section */}
       <section className="border-y bg-muted/30">
         <div className="container mx-auto px-4 py-16">
-          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+          <StaggerContainer className="grid grid-cols-2 gap-8 md:grid-cols-4" staggerDelay={150}>
             {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-3xl font-bold text-primary lg:text-4xl">{stat.value}</div>
+              <div key={index} className="text-center group">
+                <div className="text-3xl font-bold text-primary lg:text-4xl transition-transform group-hover:scale-110">
+                  <AnimatedCounter end={stat.value} suffix={stat.suffix} />
+                </div>
                 <div className="text-sm text-muted-foreground lg:text-base">{stat.label}</div>
               </div>
             ))}
-          </div>
+          </StaggerContainer>
         </div>
       </section>
 
       {/* Features Section */}
       <section id="features" className="py-20 lg:py-32">
         <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-3xl text-center mb-16">
-            <h2 className="mb-4 text-3xl font-bold sm:text-4xl lg:text-5xl">
-              Tout ce dont vous avez besoin pour réussir
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              Des outils puissants et intuitifs pour transformer votre présence sur les réseaux sociaux
-            </p>
-          </div>
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <FadeIn>
+            <div className="mx-auto max-w-3xl text-center mb-16">
+              <h2 className="mb-4 text-3xl font-bold sm:text-4xl lg:text-5xl">
+                Tout ce dont vous avez besoin pour réussir
+              </h2>
+              <p className="text-xl text-muted-foreground">
+                Des outils puissants et intuitifs pour transformer votre présence sur les réseaux sociaux
+              </p>
+            </div>
+          </FadeIn>
+
+          <StaggerContainer className="grid gap-8 md:grid-cols-2 lg:grid-cols-3" staggerDelay={100}>
             {features.map((feature, index) => (
-              <Card key={index} className="border-2 transition-all hover:border-primary/20 hover:shadow-lg">
+              <Card
+                key={index}
+                className="border-2 transition-all duration-300 hover:border-primary/20 hover:shadow-lg hover:-translate-y-1 group"
+              >
                 <CardHeader>
-                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                    <feature.icon className="h-6 w-6 text-primary" />
+                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
+                    <feature.icon className="h-6 w-6 text-primary transition-transform duration-300 group-hover:scale-110" />
                   </div>
-                  <CardTitle className="text-xl">{feature.title}</CardTitle>
+                  <CardTitle className="text-xl transition-colors group-hover:text-primary">{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <CardDescription className="text-base">{feature.description}</CardDescription>
                 </CardContent>
               </Card>
             ))}
-          </div>
+          </StaggerContainer>
         </div>
       </section>
 
       {/* Testimonials Section */}
       <section className="bg-muted/30 py-20 lg:py-32">
         <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-3xl text-center mb-16">
-            <h2 className="mb-4 text-3xl font-bold sm:text-4xl lg:text-5xl">Ils nous font confiance</h2>
-            <p className="text-xl text-muted-foreground">
-              Découvrez comment SocialGen transforme la stratégie de contenu de nos clients
-            </p>
-          </div>
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <FadeIn>
+            <div className="mx-auto max-w-3xl text-center mb-16">
+              <h2 className="mb-4 text-3xl font-bold sm:text-4xl lg:text-5xl">Ils nous font confiance</h2>
+              <p className="text-xl text-muted-foreground">
+                Découvrez comment SocialGen transforme la stratégie de contenu de nos clients
+              </p>
+            </div>
+          </FadeIn>
+
+          <StaggerContainer className="grid gap-8 md:grid-cols-2 lg:grid-cols-3" staggerDelay={150}>
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="border-2">
+              <Card
+                key={index}
+                className="border-2 transition-all duration-300 hover:shadow-lg hover:-translate-y-2 group"
+              >
                 <CardHeader>
                   <div className="flex items-center gap-4">
                     <img
                       src={testimonial.avatar || "/placeholder.svg"}
                       alt={testimonial.name}
-                      className="h-12 w-12 rounded-full object-cover"
+                      className="h-12 w-12 rounded-full object-cover transition-transform duration-300 group-hover:scale-110"
                     />
                     <div>
-                      <div className="font-semibold">{testimonial.name}</div>
+                      <div className="font-semibold transition-colors group-hover:text-primary">{testimonial.name}</div>
                       <div className="text-sm text-muted-foreground">
                         {testimonial.role} • {testimonial.company}
                       </div>
@@ -236,7 +272,11 @@ export default function HomePage() {
                   </div>
                   <div className="flex gap-1">
                     {Array.from({ length: testimonial.rating }).map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <Star
+                        key={i}
+                        className="h-4 w-4 fill-yellow-400 text-yellow-400 transition-transform duration-300 hover:scale-125"
+                        style={{ animationDelay: `${i * 100}ms` }}
+                      />
                     ))}
                   </div>
                 </CardHeader>
@@ -245,30 +285,39 @@ export default function HomePage() {
                 </CardContent>
               </Card>
             ))}
-          </div>
+          </StaggerContainer>
         </div>
       </section>
 
       {/* Pricing Section */}
       <section id="pricing" className="py-20 lg:py-32">
         <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-3xl text-center mb-16">
-            <h2 className="mb-4 text-3xl font-bold sm:text-4xl lg:text-5xl">Tarifs simples et transparents</h2>
-            <p className="text-xl text-muted-foreground">
-              Choisissez le plan qui correspond à vos besoins. Changez ou annulez à tout moment.
-            </p>
-          </div>
-          <div className="grid gap-8 lg:grid-cols-3">
+          <FadeIn>
+            <div className="mx-auto max-w-3xl text-center mb-16">
+              <h2 className="mb-4 text-3xl font-bold sm:text-4xl lg:text-5xl">Tarifs simples et transparents</h2>
+              <p className="text-xl text-muted-foreground">
+                Choisissez le plan qui correspond à vos besoins. Changez ou annulez à tout moment.
+              </p>
+            </div>
+          </FadeIn>
+
+          <StaggerContainer className="grid gap-8 lg:grid-cols-3" staggerDelay={200}>
             {pricingPlans.map((plan, index) => (
               <Card
                 key={index}
-                className={`relative border-2 ${plan.popular ? "border-primary shadow-lg scale-105" : "border-border"}`}
+                className={`relative border-2 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 group ${
+                  plan.popular
+                    ? "border-primary shadow-lg scale-105 animate-pulse"
+                    : "border-border hover:border-primary/20"
+                }`}
               >
-                {plan.popular && <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">Plus populaire</Badge>}
+                {plan.popular && (
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 animate-bounce">Plus populaire</Badge>
+                )}
                 <CardHeader className="text-center">
-                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                  <CardTitle className="text-2xl transition-colors group-hover:text-primary">{plan.name}</CardTitle>
                   <div className="mt-4">
-                    <span className="text-4xl font-bold">{plan.price}€</span>
+                    <span className="text-4xl font-bold transition-transform group-hover:scale-110">{plan.price}€</span>
                     <span className="text-muted-foreground">/{plan.period}</span>
                   </div>
                   <CardDescription className="mt-2">{plan.description}</CardDescription>
@@ -276,38 +325,46 @@ export default function HomePage() {
                 <CardContent className="space-y-4">
                   <ul className="space-y-3">
                     {plan.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-center gap-3">
-                        <CheckCircle className="h-5 w-5 text-green-500" />
-                        <span className="text-sm">{feature}</span>
+                      <li key={featureIndex} className="flex items-center gap-3 group/item">
+                        <CheckCircle className="h-5 w-5 text-green-500 transition-transform group-hover/item:scale-110" />
+                        <span className="text-sm transition-colors group-hover/item:text-primary">{feature}</span>
                       </li>
                     ))}
                   </ul>
-                  <Button className="w-full" variant={plan.popular ? "default" : "outline"} size="lg">
+                  <AnimatedButton className="w-full" variant={plan.popular ? "default" : "outline"} size="lg">
                     Commencer maintenant
-                  </Button>
+                  </AnimatedButton>
                 </CardContent>
               </Card>
             ))}
-          </div>
+          </StaggerContainer>
         </div>
       </section>
 
       {/* CTA Section */}
       <section className="bg-gradient-to-r from-primary to-primary/80 py-20 text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="mb-4 text-3xl font-bold sm:text-4xl lg:text-5xl">
-            Prêt à transformer votre présence sociale ?
-          </h2>
-          <p className="mb-8 text-xl opacity-90">Rejoignez des milliers d'entreprises qui font confiance à SocialGen</p>
-          <div className="mx-auto max-w-md">
-            <div className="flex gap-2">
-              <Input type="email" placeholder="Votre email professionnel" className="bg-white text-foreground" />
-              <Button variant="secondary" size="lg">
-                Commencer
-              </Button>
+          <FadeIn>
+            <h2 className="mb-4 text-3xl font-bold sm:text-4xl lg:text-5xl">
+              Prêt à transformer votre présence sociale ?
+            </h2>
+            <p className="mb-8 text-xl opacity-90">
+              Rejoignez des milliers d'entreprises qui font confiance à SocialGen
+            </p>
+            <div className="mx-auto max-w-md">
+              <div className="flex gap-2">
+                <Input
+                  type="email"
+                  placeholder="Votre email professionnel"
+                  className="bg-white text-foreground transition-all duration-300 focus:scale-105"
+                />
+                <AnimatedButton variant="secondary" size="lg">
+                  Commencer
+                </AnimatedButton>
+              </div>
+              <p className="mt-2 text-sm opacity-75">Essai gratuit 14 jours • Aucun engagement</p>
             </div>
-            <p className="mt-2 text-sm opacity-75">Essai gratuit 14 jours • Aucun engagement</p>
-          </div>
+          </FadeIn>
         </div>
       </section>
 

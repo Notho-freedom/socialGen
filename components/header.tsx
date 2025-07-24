@@ -1,130 +1,101 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Sparkles, Menu, Settings, LogOut, User } from "lucide-react"
-import { ThemeToggle } from "./theme-toggle"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { AnimatedButton } from "@/components/animated-button"
+import { Menu, X, Sparkles } from "lucide-react"
 
-interface HeaderProps {
-  user?: {
-    name: string
-    email: string
-    avatar?: string
-  }
-  onLogout?: () => void
-}
-
-export function Header({ user, onLogout }: HeaderProps) {
-  const [isOpen, setIsOpen] = useState(false)
+export function Header() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const navigation = [
-    { name: "Accueil", href: "/" },
     { name: "Fonctionnalités", href: "#features" },
     { name: "Tarifs", href: "#pricing" },
-    { name: "Contact", href: "#contact" },
+    { name: "À propos", href: "/about" },
+    { name: "Contact", href: "/contact" },
   ]
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2">
-          <Sparkles className="h-8 w-8 text-primary" />
-          <span className="text-2xl font-bold">SocialGen</span>
+        <Link href="/" className="flex items-center space-x-2 group">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary transition-all duration-300 group-hover:scale-110 group-hover:rotate-12">
+            <Sparkles className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <span className="text-xl font-bold transition-colors group-hover:text-primary">SocialGen</span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-6">
+        <nav className="hidden md:flex items-center space-x-8">
           {navigation.map((item) => (
-            <Link key={item.name} href={item.href} className="text-sm font-medium transition-colors hover:text-primary">
+            <Link
+              key={item.name}
+              href={item.href}
+              className="text-sm font-medium text-muted-foreground transition-all duration-200 hover:text-primary hover:scale-105"
+            >
               {item.name}
             </Link>
           ))}
         </nav>
 
-        {/* User Menu or Auth Buttons */}
-        <div className="flex items-center space-x-4">
-          {/* Theme Toggle */}
+        {/* Desktop Actions */}
+        <div className="hidden md:flex items-center space-x-4">
           <ThemeToggle />
+          <Button variant="ghost" size="sm" className="transition-all duration-200 hover:scale-105" asChild>
+            <Link href="/login">Connexion</Link>
+          </Button>
+          <AnimatedButton size="sm" asChild>
+            <Link href="/dashboard">Tableau de bord</Link>
+          </AnimatedButton>
+        </div>
 
-          {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
-                    <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user.name}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profil</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Paramètres</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={onLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Déconnexion</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <>
-              <Button variant="ghost" asChild className="hidden md:inline-flex">
-                <Link href="/login">Se connecter</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/signup">Commencer</Link>
-              </Button>
-            </>
-          )}
+        {/* Mobile Menu Button */}
+        <div className="flex items-center space-x-2 md:hidden">
+          <ThemeToggle />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="transition-all duration-200 hover:scale-110"
+          >
+            {isMenuOpen ? (
+              <X className="h-5 w-5 transition-transform duration-200 rotate-90" />
+            ) : (
+              <Menu className="h-5 w-5 transition-transform duration-200" />
+            )}
+          </Button>
+        </div>
+      </div>
 
-          {/* Mobile Menu */}
-          <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Ouvrir le menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-              <nav className="flex flex-col space-y-4">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className="text-sm font-medium transition-colors hover:text-primary"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
-              </nav>
-            </SheetContent>
-          </Sheet>
+      {/* Mobile Menu */}
+      <div
+        className={`md:hidden transition-all duration-300 ease-in-out ${
+          isMenuOpen ? "max-h-64 opacity-100 border-b" : "max-h-0 opacity-0 overflow-hidden"
+        }`}
+      >
+        <div className="container mx-auto px-4 py-4 space-y-4">
+          {navigation.map((item, index) => (
+            <Link
+              key={item.name}
+              href={item.href}
+              className="block text-sm font-medium text-muted-foreground transition-all duration-200 hover:text-primary hover:translate-x-2"
+              style={{ animationDelay: `${index * 100}ms` }}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {item.name}
+            </Link>
+          ))}
+          <div className="flex flex-col space-y-2 pt-4 border-t">
+            <Button variant="ghost" size="sm" className="justify-start" asChild>
+              <Link href="/login">Connexion</Link>
+            </Button>
+            <AnimatedButton size="sm" className="justify-start" asChild>
+              <Link href="/dashboard">Tableau de bord</Link>
+            </AnimatedButton>
+          </div>
         </div>
       </div>
     </header>
