@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Sparkles, Menu, Settings, LogOut, User } from "lucide-react"
+import { ThemeToggle } from "./theme-toggle"
 
 interface HeaderProps {
   user?: {
@@ -54,6 +55,9 @@ export function Header({ user, onLogout }: HeaderProps) {
 
         {/* User Menu or Auth Buttons */}
         <div className="flex items-center space-x-4">
+          {/* Theme Toggle */}
+          <ThemeToggle />
+
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
