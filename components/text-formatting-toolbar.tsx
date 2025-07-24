@@ -11,10 +11,10 @@ import {
   Quote,
   List,
   ListOrdered,
-  Link,
-  Smile,
   Hash,
   AtSign,
+  Link,
+  Smile,
 } from "lucide-react"
 
 interface TextFormattingToolbarProps {
@@ -41,82 +41,94 @@ export function TextFormattingToolbar({ onFormat, onInsert }: TextFormattingTool
   ]
 
   const insertButtons = [
-    { icon: Link, text: "[lien](url)", tooltip: "Insérer un lien" },
-    { icon: Smile, text: "😊", tooltip: "Insérer un emoji" },
-    { icon: Hash, text: "#hashtag", tooltip: "Insérer un hashtag" },
-    { icon: AtSign, text: "@mention", tooltip: "Insérer une mention" },
+    { icon: Hash, text: "#", tooltip: "Hashtag" },
+    { icon: AtSign, text: "@", tooltip: "Mention" },
+    { icon: Link, text: "🔗 ", tooltip: "Lien" },
+    { icon: Smile, text: "😊 ", tooltip: "Emoji" },
   ]
 
   return (
-    <div className="flex flex-wrap items-center gap-1 p-2 border rounded-lg bg-muted/20">
-      {/* Format buttons */}
+    <div className="flex flex-wrap items-center gap-1 p-3 bg-muted/30 rounded-lg border">
+      {/* Format Buttons */}
       <div className="flex items-center gap-1">
-        {formatButtons.map((button) => (
-          <AnimatedButton
-            key={button.action}
-            variant="ghost"
-            size="sm"
-            onClick={() => onFormat(button.action)}
-            className="h-8 w-8 p-0 hover:bg-primary/10"
-            title={button.tooltip}
-          >
-            <button.icon className="h-4 w-4" />
-          </AnimatedButton>
-        ))}
+        {formatButtons.map((button) => {
+          const Icon = button.icon
+          return (
+            <AnimatedButton
+              key={button.action}
+              variant="ghost"
+              size="sm"
+              onClick={() => onFormat(button.action)}
+              className="h-8 w-8 p-0 hover:bg-primary/10"
+              title={button.tooltip}
+            >
+              <Icon className="h-4 w-4" />
+            </AnimatedButton>
+          )
+        })}
       </div>
 
-      <Separator orientation="vertical" className="h-6" />
+      <Separator orientation="vertical" className="h-6 mx-1" />
 
-      {/* Heading buttons */}
+      {/* Heading Buttons */}
       <div className="flex items-center gap-1">
-        {headingButtons.map((button) => (
-          <AnimatedButton
-            key={button.action}
-            variant="ghost"
-            size="sm"
-            onClick={() => onFormat(button.action)}
-            className="h-8 w-8 p-0 hover:bg-primary/10"
-            title={button.tooltip}
-          >
-            <button.icon className="h-4 w-4" />
-          </AnimatedButton>
-        ))}
+        {headingButtons.map((button) => {
+          const Icon = button.icon
+          return (
+            <AnimatedButton
+              key={button.action}
+              variant="ghost"
+              size="sm"
+              onClick={() => onFormat(button.action)}
+              className="h-8 w-8 p-0 hover:bg-primary/10"
+              title={button.tooltip}
+            >
+              <Icon className="h-4 w-4" />
+            </AnimatedButton>
+          )
+        })}
       </div>
 
-      <Separator orientation="vertical" className="h-6" />
+      <Separator orientation="vertical" className="h-6 mx-1" />
 
-      {/* List buttons */}
+      {/* List Buttons */}
       <div className="flex items-center gap-1">
-        {listButtons.map((button) => (
-          <AnimatedButton
-            key={button.action}
-            variant="ghost"
-            size="sm"
-            onClick={() => onFormat(button.action)}
-            className="h-8 w-8 p-0 hover:bg-primary/10"
-            title={button.tooltip}
-          >
-            <button.icon className="h-4 w-4" />
-          </AnimatedButton>
-        ))}
+        {listButtons.map((button) => {
+          const Icon = button.icon
+          return (
+            <AnimatedButton
+              key={button.action}
+              variant="ghost"
+              size="sm"
+              onClick={() => onFormat(button.action)}
+              className="h-8 w-8 p-0 hover:bg-primary/10"
+              title={button.tooltip}
+            >
+              <Icon className="h-4 w-4" />
+            </AnimatedButton>
+          )
+        })}
       </div>
 
-      <Separator orientation="vertical" className="h-6" />
+      <Separator orientation="vertical" className="h-6 mx-1" />
 
-      {/* Insert buttons */}
+      {/* Insert Buttons */}
       <div className="flex items-center gap-1">
-        {insertButtons.map((button) => (
-          <AnimatedButton
-            key={button.text}
-            variant="ghost"
-            size="sm"
-            onClick={() => onInsert(button.text)}
-            className="h-8 w-8 p-0 hover:bg-primary/10"
-            title={button.tooltip}
-          >
-            <button.icon className="h-4 w-4" />
-          </AnimatedButton>
-        ))}
+        {insertButtons.map((button) => {
+          const Icon = button.icon
+          return (
+            <AnimatedButton
+              key={button.text}
+              variant="ghost"
+              size="sm"
+              onClick={() => onInsert(button.text)}
+              className="h-8 w-8 p-0 hover:bg-primary/10"
+              title={button.tooltip}
+            >
+              <Icon className="h-4 w-4" />
+            </AnimatedButton>
+          )
+        })}
       </div>
     </div>
   )

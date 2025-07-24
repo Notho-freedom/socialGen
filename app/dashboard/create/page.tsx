@@ -34,24 +34,26 @@ export default function CreatePostPage() {
       <div className="flex">
         <Sidebar />
 
-        <main className="flex-1 p-6 lg:p-8">
-          <div className="mx-auto max-w-full space-y-8">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-12">
+          <div className="w-full max-w-none space-y-8">
             {/* Header */}
-            <div className="space-y-2 mb-8">
-              <h1 className="text-3xl font-bold">Créer un nouveau post</h1>
-              <p className="text-muted-foreground">
-                Utilisez l'IA pour générer du contenu engageant adapté à votre audience
+            <div className="space-y-3 mb-8">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                Créateur de Posts IA
+              </h1>
+              <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl">
+                Interface complète pour créer du contenu social media optimisé avec l'intelligence artificielle
               </p>
             </div>
 
-            {/* Main Content - Full Width Layout */}
+            {/* Main Content - Full Width */}
+            <ModularPostCreator />
+
+            {/* Sidebar Tips - Reduced space */}
             <div className="grid gap-8 lg:grid-cols-5">
               {/* Post Creator - Takes more space */}
-              <div className="lg:col-span-3">
-                <ModularPostCreator />
-              </div>
+              <div className="lg:col-span-3">{/* ModularPostCreator is already here */}</div>
 
-              {/* Sidebar Tips - Reduced space */}
               <div className="lg:col-span-2 space-y-6">
                 <Card>
                   <CardHeader>

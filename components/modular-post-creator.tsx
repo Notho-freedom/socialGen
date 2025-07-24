@@ -15,7 +15,7 @@ import { PreviewPanel } from "@/components/post-creator/preview-panel"
 import { EnhancedImageCatalog } from "@/components/enhanced-image-catalog"
 import { HashtagMentionSuggestions } from "@/components/hashtag-mention-suggestions"
 import { PostValidation } from "@/components/post-validation"
-import { Sparkles, Settings2, ImageIcon, Hash, BarChart3, Wand2, Zap } from "lucide-react"
+import { Sparkles, Settings2, ImageIcon, Hash, BarChart3, Wand2, Zap, Play } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
 
 export function ModularPostCreator() {
@@ -241,191 +241,218 @@ export function ModularPostCreator() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
-      <div className="mx-auto max-w-7xl p-4 md:p-6 lg:p-8 space-y-8">
-        {/* Header */}
-        <FadeIn>
-          <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              Créateur de Posts IA
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Interface modulaire pour créer du contenu social media optimisé avec l'intelligence artificielle
-            </p>
-          </div>
-        </FadeIn>
-
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-          {/* Main Content Area */}
-          <div className="xl:col-span-2">
-            <StaggerContainer>
-              <FadeIn>
-                <Card className="transition-all duration-300 hover:shadow-lg">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Wand2 className="h-5 w-5 text-primary" />
-                      Assistant de Création
-                    </CardTitle>
-                    <CardDescription>Suivez les étapes pour créer votre post parfait</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                      <TabsList className="grid w-full grid-cols-5">
-                        <TabsTrigger value="setup" className="flex items-center gap-1">
-                          <Settings2 className="h-4 w-4" />
-                          <span className="hidden sm:inline">Config</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="editor" className="flex items-center gap-1">
-                          <Zap className="h-4 w-4" />
-                          <span className="hidden sm:inline">Éditeur</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="media" className="flex items-center gap-1">
-                          <ImageIcon className="h-4 w-4" />
-                          <span className="hidden sm:inline">Médias</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="hashtags" className="flex items-center gap-1">
-                          <Hash className="h-4 w-4" />
-                          <span className="hidden sm:inline">Tags</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="advanced" className="flex items-center gap-1">
-                          <BarChart3 className="h-4 w-4" />
-                          <span className="hidden sm:inline">Avancé</span>
-                        </TabsTrigger>
-                      </TabsList>
-
-                      <div className="mt-6">
-                        <TabsContent value="setup" className="space-y-6">
-                          <PlatformSelector
-                            selectedPlatforms={selectedPlatforms}
-                            onPlatformsChange={handlePlatformsChange}
-                          />
-                          <BasicConfig
-                            topic={topic}
-                            onTopicChange={setTopic}
-                            selectedObjectives={selectedObjectives}
-                            onObjectivesChange={setSelectedObjectives}
-                            customObjective={customObjective}
-                            onCustomObjectiveChange={setCustomObjective}
-                            tone={tone}
-                            onToneChange={setTone}
-                          />
-
-                          {/* Generate Button */}
-                          <div className="pt-6 border-t">
-                            <AnimatedButton
-                              onClick={generateContent}
-                              disabled={isGenerating || !topic.trim() || selectedPlatforms.length === 0}
-                              className="w-full group"
-                              size="lg"
-                            >
-                              {isGenerating ? (
-                                <>
-                                  <LoadingSpinner size="sm" className="mr-2" />
-                                  Génération en cours...
-                                </>
-                              ) : (
-                                <>
-                                  <Sparkles className="mr-2 h-4 w-4 transition-transform group-hover:rotate-12" />
-                                  Générer le contenu IA
-                                </>
-                              )}
-                            </AnimatedButton>
-                          </div>
-                        </TabsContent>
-
-                        <TabsContent value="editor" className="space-y-6">
-                          {generatedContent ? (
-                            <ContentEditor
-                              content={generatedContent}
-                              onContentChange={setGeneratedContent}
-                              isRegenerating={isRegenerating}
-                              onRegenerate={regenerateContent}
-                              selectedPlatforms={selectedPlatforms}
-                              schedulePost={schedulePost}
-                              onCopyToClipboard={copyToClipboard}
-                              onSavePost={savePost}
-                              onPublishPost={publishPost}
-                              characterLimit={currentLimit}
-                            />
-                          ) : (
-                            <Card className="p-8 text-center">
-                              <CardContent>
-                                <Sparkles className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                                <h3 className="text-lg font-semibold mb-2">Aucun contenu généré</h3>
-                                <p className="text-muted-foreground mb-4">
-                                  Commencez par configurer votre post dans l'onglet "Config"
-                                </p>
-                                <AnimatedButton onClick={() => setActiveTab("setup")}>
-                                  Retour à la configuration
-                                </AnimatedButton>
-                              </CardContent>
-                            </Card>
-                          )}
-                        </TabsContent>
-
-                        <TabsContent value="media" className="space-y-6">
-                          <EnhancedImageCatalog
-                            onImageSelect={setSelectedImage}
-                            selectedImage={selectedImage}
-                            postContent={generatedContent || topic}
-                            platform={currentPreviewPlatform}
-                          />
-                        </TabsContent>
-
-                        <TabsContent value="hashtags" className="space-y-6">
-                          <HashtagMentionSuggestions
-                            content={generatedContent}
-                            onSuggestionClick={(suggestion) => setGeneratedContent((prev) => prev + suggestion)}
-                          />
-                        </TabsContent>
-
-                        <TabsContent value="advanced" className="space-y-6">
-                          <AdvancedSettings
-                            autoOptimize={autoOptimize}
-                            onAutoOptimizeChange={setAutoOptimize}
-                            schedulePost={schedulePost}
-                            onSchedulePostChange={setSchedulePost}
-                            scheduledDate={scheduledDate}
-                            onScheduledDateChange={setScheduledDate}
-                            scheduledTime={scheduledTime}
-                            onScheduledTimeChange={setScheduledTime}
-                          />
-                        </TabsContent>
+    <div className="w-full">
+      {/* Main Layout - Full Width Responsive Grid */}
+      <div className="grid grid-cols-1 2xl:grid-cols-12 gap-6 lg:gap-8">
+        {/* Main Content Area - Takes most space */}
+        <div className="2xl:col-span-8">
+          <StaggerContainer>
+            <FadeIn>
+              <Card className="transition-all duration-300 hover:shadow-lg">
+                <CardHeader className="pb-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <Wand2 className="h-6 w-6 text-primary" />
                       </div>
-                    </Tabs>
-                  </CardContent>
-                </Card>
-              </FadeIn>
-            </StaggerContainer>
-          </div>
+                      <div>
+                        <CardTitle className="text-xl lg:text-2xl">Assistant de Création IA</CardTitle>
+                        <CardDescription className="text-base">
+                          Créez du contenu optimisé pour toutes vos plateformes sociales
+                        </CardDescription>
+                      </div>
+                    </div>
+                    {generatedContent && (
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span className="text-sm text-green-600 font-medium">Contenu généré</span>
+                      </div>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6 lg:p-8">
+                  <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                    <TabsList className="grid w-full grid-cols-5 h-12 p-1 bg-muted/50">
+                      <TabsTrigger
+                        value="setup"
+                        className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2"
+                      >
+                        <Settings2 className="h-4 w-4" />
+                        <span className="hidden sm:inline">Configuration</span>
+                        <span className="sm:hidden">Config</span>
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="editor"
+                        className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2"
+                      >
+                        <Zap className="h-4 w-4" />
+                        <span className="hidden sm:inline">Éditeur</span>
+                        <span className="sm:hidden">Edit</span>
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="media"
+                        className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2"
+                      >
+                        <ImageIcon className="h-4 w-4" />
+                        <span className="hidden sm:inline">Médias</span>
+                        <span className="sm:hidden">Media</span>
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="hashtags"
+                        className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2"
+                      >
+                        <Hash className="h-4 w-4" />
+                        <span className="hidden sm:inline">Hashtags</span>
+                        <span className="sm:hidden">Tags</span>
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="advanced"
+                        className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2"
+                      >
+                        <BarChart3 className="h-4 w-4" />
+                        <span className="hidden sm:inline">Avancé</span>
+                        <span className="sm:hidden">Plus</span>
+                      </TabsTrigger>
+                    </TabsList>
 
-          {/* Sidebar - Preview and Validation */}
-          <div className="space-y-6">
-            <StaggerContainer>
-              {/* Preview Panel */}
-              <FadeIn delay={200}>
-                <PreviewPanel
+                    <div className="mt-8">
+                      <TabsContent value="setup" className="space-y-8 mt-0">
+                        <PlatformSelector
+                          selectedPlatforms={selectedPlatforms}
+                          onPlatformsChange={handlePlatformsChange}
+                        />
+                        <BasicConfig
+                          topic={topic}
+                          onTopicChange={setTopic}
+                          selectedObjectives={selectedObjectives}
+                          onObjectivesChange={setSelectedObjectives}
+                          customObjective={customObjective}
+                          onCustomObjectiveChange={setCustomObjective}
+                          tone={tone}
+                          onToneChange={setTone}
+                        />
+
+                        {/* Generate Button */}
+                        <div className="pt-8 border-t">
+                          <AnimatedButton
+                            onClick={generateContent}
+                            disabled={isGenerating || !topic.trim() || selectedPlatforms.length === 0}
+                            className="w-full group h-14 text-lg"
+                            size="lg"
+                          >
+                            {isGenerating ? (
+                              <>
+                                <LoadingSpinner size="sm" className="mr-3" />
+                                Génération en cours...
+                              </>
+                            ) : (
+                              <>
+                                <Play className="mr-3 h-5 w-5 transition-transform group-hover:scale-110" />
+                                Générer le contenu avec l'IA
+                              </>
+                            )}
+                          </AnimatedButton>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="editor" className="space-y-8 mt-0">
+                        {generatedContent ? (
+                          <ContentEditor
+                            content={generatedContent}
+                            onContentChange={setGeneratedContent}
+                            isRegenerating={isRegenerating}
+                            onRegenerate={regenerateContent}
+                            selectedPlatforms={selectedPlatforms}
+                            schedulePost={schedulePost}
+                            onCopyToClipboard={copyToClipboard}
+                            onSavePost={savePost}
+                            onPublishPost={publishPost}
+                            characterLimit={currentLimit}
+                          />
+                        ) : (
+                          <Card className="p-12 text-center border-dashed border-2">
+                            <CardContent className="space-y-6">
+                              <div className="p-4 bg-muted/30 rounded-full w-fit mx-auto">
+                                <Sparkles className="h-12 w-12 text-muted-foreground" />
+                              </div>
+                              <div className="space-y-2">
+                                <h3 className="text-xl font-semibold">Aucun contenu généré</h3>
+                                <p className="text-muted-foreground max-w-md mx-auto">
+                                  Commencez par configurer votre post dans l'onglet "Configuration" puis générez votre
+                                  contenu avec l'IA
+                                </p>
+                              </div>
+                              <AnimatedButton onClick={() => setActiveTab("setup")} className="mt-6">
+                                <Settings2 className="mr-2 h-4 w-4" />
+                                Aller à la configuration
+                              </AnimatedButton>
+                            </CardContent>
+                          </Card>
+                        )}
+                      </TabsContent>
+
+                      <TabsContent value="media" className="space-y-8 mt-0">
+                        <EnhancedImageCatalog
+                          onImageSelect={setSelectedImage}
+                          selectedImage={selectedImage}
+                          postContent={generatedContent || topic}
+                          platform={currentPreviewPlatform}
+                        />
+                      </TabsContent>
+
+                      <TabsContent value="hashtags" className="space-y-8 mt-0">
+                        <HashtagMentionSuggestions
+                          content={generatedContent}
+                          onSuggestionClick={(suggestion) => setGeneratedContent((prev) => prev + suggestion)}
+                        />
+                      </TabsContent>
+
+                      <TabsContent value="advanced" className="space-y-8 mt-0">
+                        <AdvancedSettings
+                          autoOptimize={autoOptimize}
+                          onAutoOptimizeChange={setAutoOptimize}
+                          schedulePost={schedulePost}
+                          onSchedulePostChange={setSchedulePost}
+                          scheduledDate={scheduledDate}
+                          onScheduledDateChange={setScheduledDate}
+                          scheduledTime={scheduledTime}
+                          onScheduledTimeChange={setScheduledTime}
+                        />
+                      </TabsContent>
+                    </div>
+                  </Tabs>
+                </CardContent>
+              </Card>
+            </FadeIn>
+          </StaggerContainer>
+        </div>
+
+        {/* Sidebar - Preview and Validation */}
+        <div className="2xl:col-span-4 space-y-6">
+          <StaggerContainer>
+            {/* Preview Panel */}
+            <FadeIn delay={200}>
+              <PreviewPanel
+                content={generatedContent}
+                selectedImage={selectedImage}
+                selectedPlatforms={selectedPlatforms}
+                currentPreviewPlatform={currentPreviewPlatform}
+                onPreviewPlatformChange={setCurrentPreviewPlatform}
+              />
+            </FadeIn>
+
+            {/* Validation Panel */}
+            {generatedContent && (
+              <FadeIn delay={400}>
+                <PostValidation
                   content={generatedContent}
+                  platform={currentPreviewPlatform}
                   selectedImage={selectedImage}
-                  selectedPlatforms={selectedPlatforms}
-                  currentPreviewPlatform={currentPreviewPlatform}
-                  onPreviewPlatformChange={setCurrentPreviewPlatform}
+                  platformLimits={platformLimits}
                 />
               </FadeIn>
-
-              {/* Validation Panel */}
-              {generatedContent && (
-                <FadeIn delay={400}>
-                  <PostValidation
-                    content={generatedContent}
-                    platform={currentPreviewPlatform}
-                    selectedImage={selectedImage}
-                    platformLimits={platformLimits}
-                  />
-                </FadeIn>
-              )}
-            </StaggerContainer>
-          </div>
+            )}
+          </StaggerContainer>
         </div>
       </div>
     </div>

@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useMemo } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { AnimatedButton } from "@/components/animated-button"
 import { FadeIn } from "@/components/fade-in"
-import { Hash, AtSign, Search, TrendingUp } from "lucide-react"
+import { Hash, AtSign, TrendingUp, Users, Plus } from "lucide-react"
 
 interface HashtagMentionSuggestionsProps {
   content: string
@@ -17,144 +18,208 @@ const popularHashtags = [
   "#marketing",
   "#business",
   "#innovation",
-  "#technology",
+  "#tech",
   "#startup",
   "#entrepreneur",
-  "#digitalmarketing",
-  "#socialmedia",
-  "#AI",
+  "#leadership",
   "#success",
   "#motivation",
-  "#leadership",
   "#growth",
-  "#tips",
-  "#inspiration",
+  "#digital",
+  "#AI",
+  "#socialmedia",
+  "#branding",
+  "#strategy",
 ]
 
 const suggestedMentions = [
-  "@experts",
-  "@influencers",
-  "@industry_leaders",
-  "@community",
-  "@followers",
-  "@team",
-  "@partners",
-  "@clients",
+  "@expert_marketing",
+  "@tech_leader",
+  "@business_guru",
+  "@startup_mentor",
+  "@innovation_hub",
+  "@digital_expert",
+  "@growth_hacker",
+  "@brand_master",
 ]
 
 export function HashtagMentionSuggestions({ content, onSuggestionClick }: HashtagMentionSuggestionsProps) {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [filteredHashtags, setFilteredHashtags] = useState(popularHashtags)
-  const [contentHashtags, setContentHashtags] = useState<string[]>([])
-  const [contentMentions, setContentMentions] = useState<string[]>([])
+  const [customHashtag, setCustomHashtag] = useState("")
+  const [customMention, setCustomMention] = useState("")
 
-  useEffect(() => {
-    // Extract existing hashtags and mentions from content
-    const hashtags = content.match(/#\w+/g) || []
-    const mentions = content.match(/@\w+/g) || []
-    setContentHashtags(hashtags)
-    setContentMentions(mentions)
+  const currentHashtags = useMemo(() => {
+    return content.match(/#\w+/g) || []
+  }, [content])
 
-    // Filter hashtags based on search
-    if (searchQuery) {
-      setFilteredHashtags(popularHashtags.filter((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase())))
-    } else {
-      setFilteredHashtags(popularHashtags)
+  const currentMentions = useMemo(() => {
+    return content.match(/@\w+/g) || []
+  }, [content])
+
+  const addCustomHashtag = () => {
+    if (customHashtag.trim()) {
+      const hashtag = customHashtag.startsWith("#") ? customHashtag : `#${customHashtag}`
+      onSuggestionClick(` ${hashtag}`)
+      setCustomHashtag("")
     }
-  }, [content, searchQuery])
+  }
 
-  const handleSuggestionClick = (suggestion: string) => {
-    onSuggestionClick(` ${suggestion}`)
+  const addCustomMention = () => {
+    if (customMention.trim()) {
+      const mention = customMention.startsWith("@") ? customMention : `@${customMention}`
+      onSuggestionClick(` ${mention}`)
+      setCustomMention("")
+    }
   }
 
   return (
-    <FadeIn>
-      <Card className="transition-all duration-300 hover:shadow-lg">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-primary" />
-            Suggestions et Tendances
-          </CardTitle>
-          <CardDescription>Ajoutez des hashtags et mentions populaires pour augmenter votre portée</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Rechercher des hashtags..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 transition-all duration-300 focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
+    <div className="space-y-6">
+      {/* Current Tags */}
+      {(currentHashtags.length > 0 || currentMentions.length > 0) && (
+        <FadeIn>
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                Tags actuels
+              </CardTitle>
+              <CardDescription>Hashtags et mentions détectés dans votre contenu</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {currentHashtags.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2 text-sm font-medium">
+                    <Hash className="h-4 w-4" />
+                    Hashtags ({currentHashtags.length})
+                  </Label>
+                  <div className="flex flex-wrap gap-2">
+                    {currentHashtags.map((hashtag, index) => (
+                      <Badge key={index} variant="default" className="text-sm">
+                        {hashtag}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-          {/* Current hashtags and mentions */}
-          {(contentHashtags.length > 0 || contentMentions.length > 0) && (
-            <div className="space-y-3">
-              <p className="text-sm font-medium">Dans votre contenu :</p>
-              <div className="flex flex-wrap gap-2">
-                {contentHashtags.map((hashtag, index) => (
-                  <Badge key={index} variant="secondary" className="bg-blue-100 text-blue-700">
+              {currentMentions.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2 text-sm font-medium">
+                    <AtSign className="h-4 w-4" />
+                    Mentions ({currentMentions.length})
+                  </Label>
+                  <div className="flex flex-wrap gap-2">
+                    {currentMentions.map((mention, index) => (
+                      <Badge key={index} variant="secondary" className="text-sm">
+                        {mention}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </FadeIn>
+      )}
+
+      {/* Hashtag Suggestions */}
+      <FadeIn>
+        <Card>
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Hash className="h-5 w-5 text-primary" />
+              Hashtags populaires
+            </CardTitle>
+            <CardDescription>Ajoutez des hashtags tendance pour augmenter la visibilité</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Custom Hashtag Input */}
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <Input
+                  placeholder="Ajouter un hashtag personnalisé..."
+                  value={customHashtag}
+                  onChange={(e) => setCustomHashtag(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && addCustomHashtag()}
+                  className="transition-all duration-300 focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+              <AnimatedButton onClick={addCustomHashtag} disabled={!customHashtag.trim()} size="sm" className="px-3">
+                <Plus className="h-4 w-4" />
+              </AnimatedButton>
+            </div>
+
+            {/* Popular Hashtags */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Suggestions populaires</Label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {popularHashtags.map((hashtag) => (
+                  <AnimatedButton
+                    key={hashtag}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onSuggestionClick(` ${hashtag}`)}
+                    className="justify-start text-left hover:bg-primary/5 transition-all duration-200"
+                    disabled={currentHashtags.includes(hashtag)}
+                  >
                     <Hash className="h-3 w-3 mr-1" />
                     {hashtag.slice(1)}
-                  </Badge>
-                ))}
-                {contentMentions.map((mention, index) => (
-                  <Badge key={index} variant="secondary" className="bg-green-100 text-green-700">
-                    <AtSign className="h-3 w-3 mr-1" />
-                    {mention.slice(1)}
-                  </Badge>
+                  </AnimatedButton>
                 ))}
               </div>
             </div>
-          )}
+          </CardContent>
+        </Card>
+      </FadeIn>
 
-          {/* Hashtag suggestions */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Hash className="h-4 w-4 text-primary" />
-              <p className="text-sm font-medium">Hashtags populaires</p>
+      {/* Mention Suggestions */}
+      <FadeIn>
+        <Card>
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <AtSign className="h-5 w-5 text-primary" />
+              Mentions suggérées
+            </CardTitle>
+            <CardDescription>Mentionnez des comptes pertinents pour étendre votre portée</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Custom Mention Input */}
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <Input
+                  placeholder="Ajouter une mention personnalisée..."
+                  value={customMention}
+                  onChange={(e) => setCustomMention(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && addCustomMention()}
+                  className="transition-all duration-300 focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+              <AnimatedButton onClick={addCustomMention} disabled={!customMention.trim()} size="sm" className="px-3">
+                <Plus className="h-4 w-4" />
+              </AnimatedButton>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-              {filteredHashtags.slice(0, 12).map((hashtag) => (
-                <AnimatedButton
-                  key={hashtag}
-                  variant="outline"
-                  size="sm"
-                  className="justify-start hover:scale-105 transition-all duration-200"
-                  onClick={() => handleSuggestionClick(hashtag)}
-                >
-                  <Hash className="h-3 w-3 mr-1" />
-                  {hashtag.slice(1)}
-                </AnimatedButton>
-              ))}
-            </div>
-          </div>
 
-          {/* Mention suggestions */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <AtSign className="h-4 w-4 text-primary" />
-              <p className="text-sm font-medium">Mentions suggérées</p>
+            {/* Suggested Mentions */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Comptes recommandés</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {suggestedMentions.map((mention) => (
+                  <AnimatedButton
+                    key={mention}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onSuggestionClick(` ${mention}`)}
+                    className="justify-start text-left hover:bg-primary/5 transition-all duration-200"
+                    disabled={currentMentions.includes(mention)}
+                  >
+                    <Users className="h-3 w-3 mr-2" />
+                    {mention.slice(1)}
+                  </AnimatedButton>
+                ))}
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              {suggestedMentions.map((mention) => (
-                <AnimatedButton
-                  key={mention}
-                  variant="outline"
-                  size="sm"
-                  className="justify-start hover:scale-105 transition-all duration-200"
-                  onClick={() => handleSuggestionClick(mention)}
-                >
-                  <AtSign className="h-3 w-3 mr-1" />
-                  {mention.slice(1)}
-                </AnimatedButton>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </FadeIn>
+          </CardContent>
+        </Card>
+      </FadeIn>
+    </div>
   )
 }
