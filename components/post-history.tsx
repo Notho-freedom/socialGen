@@ -1,265 +1,171 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { MoreHorizontal, Copy, Edit, Trash2, Share, Calendar } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { MoreHorizontal, Eye, Heart, Share2, Calendar } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { useToast } from "@/hooks/use-toast"
-import { isSupabaseConfigured } from "@/lib/supabase"
-
-interface Post {
-  id: string
-  title: string
-  prompt: string
-  text_generated: string
-  image_url?: string
-  platform?: string
-  status: "draft" | "scheduled" | "published"
-  created_at: string
-  scheduled_at?: string
-  posted_at?: string
-}
 
 interface PostHistoryProps {
-  userId: string
-}
-
-const PLATFORM_CONFIGS = {
-  linkedin: { name: "LinkedIn", color: "bg-blue-600" },
-  twitter: { name: "Twitter/X", color: "bg-black" },
-  instagram: { name: "Instagram", color: "bg-pink-600" },
-  facebook: { name: "Facebook", color: "bg-blue-700" },
-}
-
-const STATUS_CONFIGS = {
-  draft: { label: "Brouillon", color: "bg-gray-500" },
-  scheduled: { label: "Programmé", color: "bg-orange-500" },
-  published: { label: "Publié", color: "bg-green-500" },
+  userId?: string
 }
 
 export function PostHistory({ userId }: PostHistoryProps) {
-  const [posts, setPosts] = useState<Post[]>([])
-  const [loading, setLoading] = useState(true)
-  const { toast } = useToast()
+  const posts = [
+    {
+      id: 1,
+      title: "Post LinkedIn - Tendances Marketing 2024",
+      content: "🚀 Les 5 tendances marketing qui vont dominer 2024...",
+      platform: "LinkedIn",
+      status: "published",
+      publishedAt: "2024-01-15T10:30:00Z",
+      stats: { views: 1250, likes: 89, shares: 23 },
+    },
+    {
+      id: 2,
+      title: "Story Instagram - Coulisses équipe",
+      content: "Découvrez les coulisses de notre équipe créative...",
+      platform: "Instagram",
+      status: "scheduled",
+      scheduledAt: "2024-01-16T14:00:00Z",
+      stats: { views: 0, likes: 0, shares: 0 },
+    },
+    {
+      id: 3,
+      title: "Tweet - Innovation Tech",
+      content: "L'IA révolutionne notre façon de travailler. Voici comment...",
+      platform: "Twitter",
+      status: "draft",
+      createdAt: "2024-01-14T16:45:00Z",
+      stats: { views: 0, likes: 0, shares: 0 },
+    },
+  ]
 
-  useEffect(() => {
-    fetchPosts()
-  }, [userId])
-
-  const fetchPosts = async () => {
-    try {
-      if (!isSupabaseConfigured()) {
-        // Demo data
-        const demoPost = {
-          id: "demo-1",
-          title: "Post de démonstration",
-          prompt: "Créer un post motivant pour LinkedIn",
-          text_generated:
-            "🚀 Nouvelle semaine, nouvelles opportunités !\n\nChaque lundi est une chance de recommencer, d'apprendre et de grandir. Que vous soyez entrepreneur, salarié ou freelance, rappelez-vous que le succès se construit jour après jour.\n\n💡 Mes 3 conseils pour bien commencer la semaine :\n✅ Définissez vos priorités\n✅ Restez curieux et ouvert aux opportunités\n✅ N'oubliez pas de célébrer vos petites victoires\n\nQuel est votre objectif principal cette semaine ? 👇\n\n#Motivation #LinkedIn #Entrepreneuriat #Croissance #Mindset",
-          image_url: "/placeholder.svg?height=400&width=600",
-          platform: "linkedin",
-          status: "draft" as const,
-          created_at: new Date().toISOString(),
-        }
-        setPosts([demoPost])
-        setLoading(false)
-        return
-      }
-
-      const response = await fetch(`/api/posts?userId=${userId}`)
-      if (!response.ok) throw new Error("Erreur lors du chargement")
-
-      const data = await response.json()
-      setPosts(data.posts || [])
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de charger l'historique des posts.",
-        variant: "destructive",
-      })
-    } finally {
-      setLoading(false)
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "published":
+        return "bg-green-100 text-green-800"
+      case "scheduled":
+        return "bg-blue-100 text-blue-800"
+      case "draft":
+        return "bg-yellow-100 text-yellow-800"
+      default:
+        return "bg-gray-100 text-gray-800"
     }
   }
 
-  const handleCopyText = async (text: string) => {
-    await navigator.clipboard.writeText(text)
-    toast({
-      title: "Copié !",
-      description: "Le texte a été copié dans le presse-papiers.",
-    })
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "published":
+        return "Publié"
+      case "scheduled":
+        return "Planifié"
+      case "draft":
+        return "Brouillon"
+      default:
+        return status
+    }
   }
 
-  const handleDeletePost = async (postId: string) => {
-    try {
-      const response = await fetch(`/api/posts/${postId}`, {
-        method: "DELETE",
-      })
-
-      if (!response.ok) throw new Error("Erreur lors de la suppression")
-
-      setPosts(posts.filter((post) => post.id !== postId))
-      toast({
-        title: "Supprimé !",
-        description: "Le post a été supprimé avec succès.",
-      })
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de supprimer le post.",
-        variant: "destructive",
-      })
+  const getPlatformColor = (platform: string) => {
+    switch (platform) {
+      case "LinkedIn":
+        return "bg-blue-600"
+      case "Instagram":
+        return "bg-pink-600"
+      case "Twitter":
+        return "bg-sky-500"
+      default:
+        return "bg-gray-600"
     }
   }
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("fr-FR", {
       day: "numeric",
-      month: "long",
-      year: "numeric",
+      month: "short",
       hour: "2-digit",
       minute: "2-digit",
     })
   }
 
-  if (loading) {
-    return (
-      <Card>
-        <CardContent className="p-8">
-          <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  if (posts.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Historique des posts</CardTitle>
-          <CardDescription>Retrouvez tous vos posts créés et publiés</CardDescription>
-        </CardHeader>
-        <CardContent className="text-center py-8">
-          <div className="text-gray-500">
-            <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p className="text-lg font-medium mb-2">Aucun post créé</p>
-            <p className="text-sm">Commencez par créer votre premier post !</p>
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
-
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Historique des posts</CardTitle>
-          <CardDescription>
-            {posts.length} post{posts.length > 1 ? "s" : ""} créé{posts.length > 1 ? "s" : ""}
-          </CardDescription>
-        </CardHeader>
-      </Card>
-
-      <div className="space-y-4">
-        {posts.map((post) => {
-          const platformConfig = post.platform ? PLATFORM_CONFIGS[post.platform as keyof typeof PLATFORM_CONFIGS] : null
-          const statusConfig = STATUS_CONFIGS[post.status]
-
-          return (
-            <Card key={post.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="space-y-2">
+    <Card>
+      <CardHeader>
+        <CardTitle>Historique des posts</CardTitle>
+        <CardDescription>Gérez et suivez tous vos contenus publiés</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {posts.map((post) => (
+            <div key={post.id} className="border rounded-lg p-4 space-y-3">
+              <div className="flex items-start justify-between">
+                <div className="flex items-start space-x-3 flex-1">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className={`text-white text-xs ${getPlatformColor(post.platform)}`}>
+                      {post.platform.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold">{post.title}</h3>
-                      <Badge variant="secondary" className={`text-white ${statusConfig.color}`}>
-                        {statusConfig.label}
+                      <h3 className="font-medium text-sm">{post.title}</h3>
+                      <Badge variant="secondary" className={getStatusColor(post.status)}>
+                        {getStatusText(post.status)}
                       </Badge>
-                      {platformConfig && (
-                        <Badge variant="outline" className="flex items-center gap-1">
-                          <div className={`w-2 h-2 rounded-full ${platformConfig.color}`} />
-                          {platformConfig.name}
-                        </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground line-clamp-2">{post.content}</p>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      {post.publishedAt && (
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          Publié le {formatDate(post.publishedAt)}
+                        </span>
+                      )}
+                      {post.scheduledAt && (
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          Planifié pour le {formatDate(post.scheduledAt)}
+                        </span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-600">Créé le {formatDate(post.created_at)}</p>
-                    {post.status === "scheduled" && post.scheduled_at && (
-                      <p className="text-sm text-orange-600">Programmé pour le {formatDate(post.scheduled_at)}</p>
-                    )}
-                    {post.status === "published" && post.posted_at && (
-                      <p className="text-sm text-green-600">Publié le {formatDate(post.posted_at)}</p>
-                    )}
                   </div>
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleCopyText(post.text_generated)}>
-                        <Copy className="h-4 w-4 mr-2" />
-                        Copier le texte
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Edit className="h-4 w-4 mr-2" />
-                        Modifier
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Share className="h-4 w-4 mr-2" />
-                        Republier
-                      </DropdownMenuItem>
-                      <Separator />
-                      <DropdownMenuItem className="text-red-600" onClick={() => handleDeletePost(post.id)}>
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Supprimer
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
                 </div>
-              </CardHeader>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem>Modifier</DropdownMenuItem>
+                    <DropdownMenuItem>Dupliquer</DropdownMenuItem>
+                    <DropdownMenuItem>Voir les stats</DropdownMenuItem>
+                    <DropdownMenuItem className="text-red-600">Supprimer</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
 
-              <CardContent>
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div className="md:col-span-2 space-y-3">
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">Prompt utilisé</h4>
-                      <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">{post.prompt}</p>
-                    </div>
-
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">Texte généré</h4>
-                      <div className="text-sm bg-gray-50 p-3 rounded-lg max-h-32 overflow-y-auto">
-                        <p className="whitespace-pre-wrap">{post.text_generated}</p>
-                      </div>
-                    </div>
+              {post.status === "published" && (
+                <div className="flex items-center gap-6 text-sm text-muted-foreground border-t pt-3">
+                  <div className="flex items-center gap-1">
+                    <Eye className="h-4 w-4" />
+                    <span>{post.stats.views.toLocaleString()}</span>
                   </div>
-
-                  {post.image_url && (
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium text-gray-700">Image</h4>
-                      <div className="rounded-lg overflow-hidden">
-                        <img
-                          src={post.image_url || "/placeholder.svg"}
-                          alt="Post image"
-                          className="w-full aspect-video object-cover"
-                        />
-                      </div>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-1">
+                    <Heart className="h-4 w-4" />
+                    <span>{post.stats.likes}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Share2 className="h-4 w-4" />
+                    <span>{post.stats.shares}</span>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
-    </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   )
 }
