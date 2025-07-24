@@ -1,135 +1,211 @@
 "use client"
 
-import { AnimatedButton } from "@/components/animated-button"
+import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Card, CardContent } from "@/components/ui/card"
+import { FadeIn } from "@/components/fade-in"
 import {
   Bold,
   Italic,
   Underline,
-  Heading1,
-  Heading2,
-  Quote,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
   List,
   ListOrdered,
+  Link,
   Hash,
   AtSign,
-  Link,
   Smile,
+  ImageIcon,
+  Calendar,
+  MapPin,
+  Star,
+  Type,
+  Palette,
 } from "lucide-react"
 
 interface TextFormattingToolbarProps {
-  onFormat: (format: string) => void
-  onInsert: (text: string) => void
+  onFormatClick: (format: string) => void
+  onInsertClick: (element: string) => void
 }
 
-export function TextFormattingToolbar({ onFormat, onInsert }: TextFormattingToolbarProps) {
-  const formatButtons = [
-    { icon: Bold, action: "bold", tooltip: "Gras (Ctrl+B)" },
-    { icon: Italic, action: "italic", tooltip: "Italique (Ctrl+I)" },
-    { icon: Underline, action: "underline", tooltip: "Souligné (Ctrl+U)" },
-  ]
+const formatButtons = [
+  { icon: Bold, label: "Gras", action: "bold" },
+  { icon: Italic, label: "Italique", action: "italic" },
+  { icon: Underline, label: "Souligné", action: "underline" },
+]
 
-  const headingButtons = [
-    { icon: Heading1, action: "h1", tooltip: "Titre 1" },
-    { icon: Heading2, action: "h2", tooltip: "Titre 2" },
-    { icon: Quote, action: "quote", tooltip: "Citation" },
-  ]
+const alignmentButtons = [
+  { icon: AlignLeft, label: "Aligner à gauche", action: "align-left" },
+  { icon: AlignCenter, label: "Centrer", action: "align-center" },
+  { icon: AlignRight, label: "Aligner à droite", action: "align-right" },
+]
 
-  const listButtons = [
-    { icon: List, action: "ul", tooltip: "Liste à puces" },
-    { icon: ListOrdered, action: "ol", tooltip: "Liste numérotée" },
-  ]
+const listButtons = [
+  { icon: List, label: "Liste à puces", action: "bullet-list" },
+  { icon: ListOrdered, label: "Liste numérotée", action: "ordered-list" },
+]
 
-  const insertButtons = [
-    { icon: Hash, text: "#", tooltip: "Hashtag" },
-    { icon: AtSign, text: "@", tooltip: "Mention" },
-    { icon: Link, text: "🔗 ", tooltip: "Lien" },
-    { icon: Smile, text: "😊 ", tooltip: "Emoji" },
-  ]
+const insertButtons = [
+  { icon: Link, label: "Insérer un lien", action: "link", text: "🔗 " },
+  { icon: Hash, label: "Ajouter hashtag", action: "hashtag", text: "#" },
+  { icon: AtSign, label: "Mentionner", action: "mention", text: "@" },
+  { icon: Smile, label: "Emoji", action: "emoji", text: "😊 " },
+  { icon: ImageIcon, label: "Image", action: "image", text: "📷 " },
+  { icon: Calendar, label: "Date/Événement", action: "date", text: "📅 " },
+  { icon: MapPin, label: "Localisation", action: "location", text: "📍 " },
+  { icon: Star, label: "Call-to-action", action: "cta", text: "⭐ " },
+]
 
+const styleButtons = [
+  { icon: Type, label: "Taille de police", action: "font-size" },
+  { icon: Palette, label: "Couleur", action: "color" },
+]
+
+export function TextFormattingToolbar({ onFormatClick, onInsertClick }: TextFormattingToolbarProps) {
   return (
-    <div className="flex flex-wrap items-center gap-1 p-3 bg-muted/30 rounded-lg border">
-      {/* Format Buttons */}
-      <div className="flex items-center gap-1">
-        {formatButtons.map((button) => {
-          const Icon = button.icon
-          return (
-            <AnimatedButton
-              key={button.action}
-              variant="ghost"
-              size="sm"
-              onClick={() => onFormat(button.action)}
-              className="h-8 w-8 p-0 hover:bg-primary/10"
-              title={button.tooltip}
-            >
-              <Icon className="h-4 w-4" />
-            </AnimatedButton>
-          )
-        })}
-      </div>
+    <FadeIn>
+      <Card
+        className="transition-all duration-300 hover:shadow-lg cursor-move"
+        draggable
+        onDragStart={(e) => e.dataTransfer.setData("text/plain", "toolbar-card")}
+      >
+        <CardContent className="p-4">
+          <TooltipProvider>
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Format Buttons */}
+              <div className="flex items-center gap-1">
+                {formatButtons.map((button) => {
+                  const Icon = button.icon
+                  return (
+                    <Tooltip key={button.action}>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onFormatClick(button.action)}
+                          className="h-8 w-8 p-0 hover:bg-primary/10"
+                        >
+                          <Icon className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{button.label}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )
+                })}
+              </div>
 
-      <Separator orientation="vertical" className="h-6 mx-1" />
+              <Separator orientation="vertical" className="h-6" />
 
-      {/* Heading Buttons */}
-      <div className="flex items-center gap-1">
-        {headingButtons.map((button) => {
-          const Icon = button.icon
-          return (
-            <AnimatedButton
-              key={button.action}
-              variant="ghost"
-              size="sm"
-              onClick={() => onFormat(button.action)}
-              className="h-8 w-8 p-0 hover:bg-primary/10"
-              title={button.tooltip}
-            >
-              <Icon className="h-4 w-4" />
-            </AnimatedButton>
-          )
-        })}
-      </div>
+              {/* Alignment Buttons */}
+              <div className="flex items-center gap-1">
+                {alignmentButtons.map((button) => {
+                  const Icon = button.icon
+                  return (
+                    <Tooltip key={button.action}>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onFormatClick(button.action)}
+                          className="h-8 w-8 p-0 hover:bg-primary/10"
+                        >
+                          <Icon className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{button.label}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )
+                })}
+              </div>
 
-      <Separator orientation="vertical" className="h-6 mx-1" />
+              <Separator orientation="vertical" className="h-6" />
 
-      {/* List Buttons */}
-      <div className="flex items-center gap-1">
-        {listButtons.map((button) => {
-          const Icon = button.icon
-          return (
-            <AnimatedButton
-              key={button.action}
-              variant="ghost"
-              size="sm"
-              onClick={() => onFormat(button.action)}
-              className="h-8 w-8 p-0 hover:bg-primary/10"
-              title={button.tooltip}
-            >
-              <Icon className="h-4 w-4" />
-            </AnimatedButton>
-          )
-        })}
-      </div>
+              {/* List Buttons */}
+              <div className="flex items-center gap-1">
+                {listButtons.map((button) => {
+                  const Icon = button.icon
+                  return (
+                    <Tooltip key={button.action}>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onFormatClick(button.action)}
+                          className="h-8 w-8 p-0 hover:bg-primary/10"
+                        >
+                          <Icon className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{button.label}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )
+                })}
+              </div>
 
-      <Separator orientation="vertical" className="h-6 mx-1" />
+              <Separator orientation="vertical" className="h-6" />
 
-      {/* Insert Buttons */}
-      <div className="flex items-center gap-1">
-        {insertButtons.map((button) => {
-          const Icon = button.icon
-          return (
-            <AnimatedButton
-              key={button.text}
-              variant="ghost"
-              size="sm"
-              onClick={() => onInsert(button.text)}
-              className="h-8 w-8 p-0 hover:bg-primary/10"
-              title={button.tooltip}
-            >
-              <Icon className="h-4 w-4" />
-            </AnimatedButton>
-          )
-        })}
-      </div>
-    </div>
+              {/* Insert Buttons */}
+              <div className="flex items-center gap-1 flex-wrap">
+                {insertButtons.map((button) => {
+                  const Icon = button.icon
+                  return (
+                    <Tooltip key={button.action}>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onInsertClick(button.text)}
+                          className="h-8 w-8 p-0 hover:bg-primary/10"
+                        >
+                          <Icon className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{button.label}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )
+                })}
+              </div>
+
+              <Separator orientation="vertical" className="h-6" />
+
+              {/* Style Buttons */}
+              <div className="flex items-center gap-1">
+                {styleButtons.map((button) => {
+                  const Icon = button.icon
+                  return (
+                    <Tooltip key={button.action}>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onFormatClick(button.action)}
+                          className="h-8 w-8 p-0 hover:bg-primary/10"
+                        >
+                          <Icon className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{button.label}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )
+                })}
+              </div>
+            </div>
+          </TooltipProvider>
+        </CardContent>
+      </Card>
+    </FadeIn>
   )
 }

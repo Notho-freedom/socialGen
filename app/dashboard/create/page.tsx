@@ -1,9 +1,12 @@
-import { Header } from "@/components/header"
+"use client"
+
 import { Sidebar } from "@/components/sidebar"
 import { ModularPostCreator } from "@/components/modular-post-creator"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Lightbulb, TrendingUp, Clock, Users } from "lucide-react"
+import { DemoBanner } from "@/components/demo-banner"
+import { FadeIn } from "@/components/fade-in"
 
 export default function CreatePostPage() {
   const tips = [
@@ -28,8 +31,8 @@ export default function CreatePostPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
+      <DemoBanner />
 
       <div className="flex">
         <Sidebar />
@@ -37,16 +40,19 @@ export default function CreatePostPage() {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-12">
           <div className="w-full max-w-none space-y-8">
             {/* Header */}
-            <div className="space-y-3 mb-8">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                Créateur de Posts IA
-              </h1>
-              <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl">
-                Interface complète pour créer du contenu social media optimisé avec l'intelligence artificielle
-              </p>
-            </div>
+            <FadeIn>
+              <div className="text-center space-y-4 mb-12">
+                <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                  Créateur de Posts IA
+                </h1>
+                <p className="text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto">
+                  Créez du contenu optimisé pour toutes vos plateformes sociales avec l'intelligence artificielle.
+                  Interface modulaire et intuitive pour des résultats professionnels.
+                </p>
+              </div>
+            </FadeIn>
 
-            {/* Main Content - Full Width */}
+            {/* Main Creator */}
             <ModularPostCreator />
 
             {/* Sidebar Tips - Reduced space */}
