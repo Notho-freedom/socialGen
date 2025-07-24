@@ -26,6 +26,11 @@ import {
   TwitterIcon as TikTok,
 } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
+import { FacebookPreview } from "@/components/post-previews/facebook-preview"
+import { InstagramPreview } from "@/components/post-previews/instagram-preview"
+import { TwitterPreview } from "@/components/post-previews/twitter-preview"
+import { LinkedInPreview } from "@/components/post-previews/linkedin-preview"
+import { ImageCatalog } from "@/components/image-catalog"
 
 const platforms = [
   { id: "twitter", name: "Twitter", icon: Twitter, limit: 280, color: "bg-blue-500" },
@@ -67,6 +72,7 @@ export function PostGenerator() {
   const [generatedContent, setGeneratedContent] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
   const [isRegenerating, setIsRegenerating] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<string>("")
 
   const currentPlatform = platforms.find((p) => p.id === selectedPlatform)
   const characterCount = generatedContent.length
@@ -198,207 +204,258 @@ export function PostGenerator() {
 
   return (
     <div className="space-y-6">
-      <FadeIn>
-        <Card className="transition-all duration-300 hover:shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary animate-pulse" />
-              Générateur de Posts IA
-            </CardTitle>
-            <CardDescription>Créez du contenu engageant pour vos réseaux sociaux en quelques clics</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Platform Selection */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">Plateforme</Label>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                {platforms.map((platform) => {
-                  const Icon = platform.icon
-                  return (
-                    <AnimatedButton
-                      key={platform.id}
-                      variant={selectedPlatform === platform.id ? "default" : "outline"}
-                      className={`flex flex-col items-center gap-2 h-auto py-3 transition-all duration-300 ${
-                        selectedPlatform === platform.id ? "scale-105 shadow-lg" : "hover:scale-105"
-                      }`}
-                      onClick={() => setSelectedPlatform(platform.id)}
-                    >
-                      <Icon className="h-4 w-4 transition-transform duration-300 hover:scale-110" />
-                      <span className="text-xs">{platform.name}</span>
-                    </AnimatedButton>
-                  )
-                })}
-              </div>
-              {currentPlatform && (
-                <p className="text-xs text-muted-foreground animate-fade-in">
-                  Limite de caractères : {currentPlatform.limit}
-                </p>
-              )}
-            </div>
-
-            <Separator />
-
-            {/* Content Configuration */}
-            <Tabs defaultValue="basic" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="basic" className="transition-all duration-200 hover:scale-105">
-                  Configuration de base
-                </TabsTrigger>
-                <TabsTrigger value="advanced" className="transition-all duration-200 hover:scale-105">
-                  Options avancées
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="basic" className="space-y-4">
-                {/* Topic */}
-                <div className="space-y-2">
-                  <Label htmlFor="topic">Sujet du post *</Label>
-                  <Textarea
-                    id="topic"
-                    placeholder="Ex: Lancement de notre nouveau produit, conseils marketing, tendances 2024..."
-                    value={topic}
-                    onChange={(e) => setTopic(e.target.value)}
-                    className="min-h-[80px] transition-all duration-300 focus:scale-[1.02]"
-                  />
-                </div>
-
-                {/* Objectives */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Configuration Panel */}
+        <div className="space-y-6">
+          <FadeIn>
+            <Card className="transition-all duration-300 hover:shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary animate-pulse" />
+                  Générateur de Posts IA
+                </CardTitle>
+                <CardDescription>Créez du contenu engageant pour vos réseaux sociaux en quelques clics</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Platform Selection */}
                 <div className="space-y-3">
-                  <Label>Objectifs</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {objectives.map((objective) => (
-                      <Badge
-                        key={objective}
-                        variant={selectedObjectives.includes(objective) ? "default" : "outline"}
-                        className="cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-md"
-                        onClick={() => toggleObjective(objective)}
-                      >
-                        {objective}
-                      </Badge>
-                    ))}
-                  </div>
-                  <Input
-                    placeholder="Objectif personnalisé..."
-                    value={customObjective}
-                    onChange={(e) => setCustomObjective(e.target.value)}
-                    className="mt-2 transition-all duration-300 focus:scale-[1.02]"
-                  />
-                </div>
-              </TabsContent>
-
-              <TabsContent value="advanced" className="space-y-4">
-                {/* Tone */}
-                <div className="space-y-2">
-                  <Label htmlFor="tone">Ton de communication</Label>
-                  <Select value={tone} onValueChange={setTone}>
-                    <SelectTrigger className="transition-all duration-300 hover:scale-[1.02]">
-                      <SelectValue placeholder="Choisir un ton" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {tones.map((toneOption) => (
-                        <SelectItem
-                          key={toneOption}
-                          value={toneOption}
-                          className="transition-colors hover:bg-primary/10"
+                  <Label className="text-sm font-medium">Plateforme</Label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {platforms.map((platform) => {
+                      const Icon = platform.icon
+                      return (
+                        <AnimatedButton
+                          key={platform.id}
+                          variant={selectedPlatform === platform.id ? "default" : "outline"}
+                          className={`flex flex-col items-center gap-2 h-auto py-3 transition-all duration-300 ${
+                            selectedPlatform === platform.id ? "scale-105 shadow-lg" : "hover:scale-105"
+                          }`}
+                          onClick={() => setSelectedPlatform(platform.id)}
                         >
-                          {toneOption}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                          <Icon className="h-4 w-4 transition-transform duration-300 hover:scale-110" />
+                          <span className="text-xs">{platform.name}</span>
+                        </AnimatedButton>
+                      )
+                    })}
+                  </div>
+                  {currentPlatform && (
+                    <p className="text-xs text-muted-foreground animate-fade-in">
+                      Limite de caractères : {currentPlatform.limit}
+                    </p>
+                  )}
                 </div>
-              </TabsContent>
-            </Tabs>
 
-            <Separator />
+                <Separator />
 
-            {/* Generate Button */}
-            <AnimatedButton
-              onClick={generateContent}
-              disabled={isGenerating || !topic.trim()}
-              className="w-full group"
-              size="lg"
-            >
-              {isGenerating ? (
-                <>
-                  <LoadingSpinner size="sm" className="mr-2" />
-                  Génération en cours...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="mr-2 h-4 w-4 transition-transform group-hover:rotate-12" />
-                  Générer le contenu
-                </>
-              )}
-            </AnimatedButton>
-          </CardContent>
-        </Card>
-      </FadeIn>
+                {/* Content Configuration */}
+                <Tabs defaultValue="basic" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="basic" className="transition-all duration-200 hover:scale-105">
+                      Configuration de base
+                    </TabsTrigger>
+                    <TabsTrigger value="advanced" className="transition-all duration-200 hover:scale-105">
+                      Options avancées
+                    </TabsTrigger>
+                  </TabsList>
 
-      {/* Generated Content */}
-      {generatedContent && (
-        <FadeIn delay={300}>
-          <Card className="transition-all duration-300 hover:shadow-lg">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Contenu généré</CardTitle>
-                <div className="flex items-center gap-2">
-                  <Badge
-                    variant={isOverLimit ? "destructive" : "secondary"}
-                    className="transition-all duration-300 hover:scale-110"
-                  >
-                    {characterCount}/{currentPlatform?.limit}
-                  </Badge>
-                  <AnimatedButton
-                    variant="ghost"
-                    size="sm"
-                    onClick={regenerateContent}
-                    disabled={isRegenerating}
-                    className="group"
-                  >
-                    {isRegenerating ? (
-                      <LoadingSpinner size="sm" />
-                    ) : (
-                      <RefreshCw className="h-4 w-4 transition-transform group-hover:rotate-180" />
-                    )}
-                  </AnimatedButton>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Textarea
-                value={generatedContent}
-                onChange={(e) => setGeneratedContent(e.target.value)}
-                className={`min-h-[120px] transition-all duration-300 focus:scale-[1.02] ${
-                  isOverLimit ? "border-destructive animate-pulse" : ""
-                }`}
-                placeholder="Le contenu généré apparaîtra ici..."
-              />
+                  <TabsContent value="basic" className="space-y-4">
+                    {/* Topic */}
+                    <div className="space-y-2">
+                      <Label htmlFor="topic">Sujet du post *</Label>
+                      <Textarea
+                        id="topic"
+                        placeholder="Ex: Lancement de notre nouveau produit, conseils marketing, tendances 2024..."
+                        value={topic}
+                        onChange={(e) => setTopic(e.target.value)}
+                        className="min-h-[80px] transition-all duration-300 focus:scale-[1.02]"
+                      />
+                    </div>
 
-              {isOverLimit && (
-                <p className="text-sm text-destructive animate-bounce">
-                  ⚠️ Le contenu dépasse la limite de caractères pour {currentPlatform?.name}
-                </p>
-              )}
+                    {/* Objectives */}
+                    <div className="space-y-3">
+                      <Label>Objectifs</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {objectives.map((objective) => (
+                          <Badge
+                            key={objective}
+                            variant={selectedObjectives.includes(objective) ? "default" : "outline"}
+                            className="cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-md"
+                            onClick={() => toggleObjective(objective)}
+                          >
+                            {objective}
+                          </Badge>
+                        ))}
+                      </div>
+                      <Input
+                        placeholder="Objectif personnalisé..."
+                        value={customObjective}
+                        onChange={(e) => setCustomObjective(e.target.value)}
+                        className="mt-2 transition-all duration-300 focus:scale-[1.02]"
+                      />
+                    </div>
+                  </TabsContent>
 
-              <div className="flex flex-wrap gap-2">
-                <AnimatedButton variant="outline" size="sm" onClick={copyToClipboard} className="group">
-                  <Copy className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
-                  Copier
+                  <TabsContent value="advanced" className="space-y-4">
+                    {/* Tone */}
+                    <div className="space-y-2">
+                      <Label htmlFor="tone">Ton de communication</Label>
+                      <Select value={tone} onValueChange={setTone}>
+                        <SelectTrigger className="transition-all duration-300 hover:scale-[1.02]">
+                          <SelectValue placeholder="Choisir un ton" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {tones.map((toneOption) => (
+                            <SelectItem
+                              key={toneOption}
+                              value={toneOption}
+                              className="transition-colors hover:bg-primary/10"
+                            >
+                              {toneOption}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+
+                <Separator />
+
+                {/* Generate Button */}
+                <AnimatedButton
+                  onClick={generateContent}
+                  disabled={isGenerating || !topic.trim()}
+                  className="w-full group"
+                  size="lg"
+                >
+                  {isGenerating ? (
+                    <>
+                      <LoadingSpinner size="sm" className="mr-2" />
+                      Génération en cours...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="mr-2 h-4 w-4 transition-transform group-hover:rotate-12" />
+                      Générer le contenu
+                    </>
+                  )}
                 </AnimatedButton>
-                <AnimatedButton variant="outline" size="sm" onClick={savePost} className="group">
-                  <Save className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
-                  Sauvegarder
-                </AnimatedButton>
-                <AnimatedButton variant="outline" size="sm" className="group">
-                  <Calendar className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
-                  Programmer
-                </AnimatedButton>
-              </div>
-            </CardContent>
-          </Card>
-        </FadeIn>
-      )}
+              </CardContent>
+            </Card>
+          </FadeIn>
+
+          {/* Generated Content */}
+          {generatedContent && (
+            <FadeIn delay={300}>
+              <Card className="transition-all duration-300 hover:shadow-lg">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">Contenu généré</CardTitle>
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant={isOverLimit ? "destructive" : "secondary"}
+                        className="transition-all duration-300 hover:scale-110"
+                      >
+                        {characterCount}/{currentPlatform?.limit}
+                      </Badge>
+                      <AnimatedButton
+                        variant="ghost"
+                        size="sm"
+                        onClick={regenerateContent}
+                        disabled={isRegenerating}
+                        className="group"
+                      >
+                        {isRegenerating ? (
+                          <LoadingSpinner size="sm" />
+                        ) : (
+                          <RefreshCw className="h-4 w-4 transition-transform group-hover:rotate-180" />
+                        )}
+                      </AnimatedButton>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Textarea
+                    value={generatedContent}
+                    onChange={(e) => setGeneratedContent(e.target.value)}
+                    className={`min-h-[120px] transition-all duration-300 focus:scale-[1.02] ${
+                      isOverLimit ? "border-destructive animate-pulse" : ""
+                    }`}
+                    placeholder="Le contenu généré apparaîtra ici..."
+                  />
+
+                  {isOverLimit && (
+                    <p className="text-sm text-destructive animate-bounce">
+                      ⚠️ Le contenu dépasse la limite de caractères pour {currentPlatform?.name}
+                    </p>
+                  )}
+
+                  <div className="flex flex-wrap gap-2">
+                    <AnimatedButton variant="outline" size="sm" onClick={copyToClipboard} className="group">
+                      <Copy className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
+                      Copier
+                    </AnimatedButton>
+                    <AnimatedButton variant="outline" size="sm" onClick={savePost} className="group">
+                      <Save className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
+                      Sauvegarder
+                    </AnimatedButton>
+                    <AnimatedButton variant="outline" size="sm" className="group">
+                      <Calendar className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
+                      Programmer
+                    </AnimatedButton>
+                  </div>
+                </CardContent>
+              </Card>
+            </FadeIn>
+          )}
+
+          {/* Image Catalog */}
+          <ImageCatalog
+            onImageSelect={setSelectedImage}
+            selectedImage={selectedImage}
+            postContent={generatedContent || topic}
+            platform={selectedPlatform}
+          />
+        </div>
+
+        {/* Preview Panel */}
+        <div className="space-y-6">
+          <FadeIn delay={200}>
+            <Card className="transition-all duration-300 hover:shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <span>Prévisualisation</span>
+                  {currentPlatform && (
+                    <Badge variant="outline" className={`${currentPlatform.color} text-white`}>
+                      {currentPlatform.name}
+                    </Badge>
+                  )}
+                </CardTitle>
+                <CardDescription>
+                  Aperçu de votre post tel qu'il apparaîtra sur la plateforme sélectionnée
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {selectedPlatform === "facebook" && (
+                  <FacebookPreview content={generatedContent || topic} imageUrl={selectedImage} />
+                )}
+                {selectedPlatform === "instagram" && (
+                  <InstagramPreview content={generatedContent || topic} imageUrl={selectedImage} />
+                )}
+                {selectedPlatform === "twitter" && (
+                  <TwitterPreview content={generatedContent || topic} imageUrl={selectedImage} />
+                )}
+                {selectedPlatform === "linkedin" && (
+                  <LinkedInPreview content={generatedContent || topic} imageUrl={selectedImage} />
+                )}
+                {(selectedPlatform === "youtube" || selectedPlatform === "tiktok") && (
+                  <LinkedInPreview content={generatedContent || topic} imageUrl={selectedImage} />
+                )}
+              </CardContent>
+            </Card>
+          </FadeIn>
+        </div>
+      </div>
     </div>
   )
 }
