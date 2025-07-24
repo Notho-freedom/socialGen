@@ -37,18 +37,7 @@ export default function CreatePostPage() {
         <main className="flex-1 p-6 lg:p-8">
           <div className="mx-auto max-w-6xl space-y-8">
             {/* Header */}
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold">Créer un nouveau post</h1>
-              <p className="text-muted-foreground">
-                Utilisez l'IA pour générer du contenu engageant adapté à votre audience
-              </p>
-            </div>
-
-            <div className="grid gap-8 lg:grid-cols-4">
-              {/* Main Content */}
-              <div className="lg:col-span-3">
-                <ModularPostCreator />
-              </div>
+                     </div>
 
               {/* Sidebar Tips */}
               <div className="space-y-6">
