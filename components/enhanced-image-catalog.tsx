@@ -2,120 +2,71 @@
 
 import type React from "react"
 
-import { useState, useRef } from "react"
+import { useState, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
+import { AnimatedButton } from "@/components/animated-button"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { FadeIn } from "@/components/fade-in"
-import { AnimatedButton } from "@/components/animated-button"
-import {
-  Upload,
-  Sparkles,
-  ImageIcon,
-  Check,
-  Palette,
-  Camera,
-  Lightbulb,
-  TrendingUp,
-  Briefcase,
-  Heart,
-  Zap,
-  Globe,
-  Search,
-} from "lucide-react"
+import { ImageIcon, Upload, Search, Sparkles, Camera, Briefcase, Heart, Zap, Leaf, Palette } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
 
 interface EnhancedImageCatalogProps {
   onImageSelect: (imageUrl: string) => void
   selectedImage?: string
-  postContent?: string
-  platform?: string
+  postContent: string
+  platform: string
 }
 
 const imageCategories = [
-  {
-    id: "business",
-    name: "Business",
-    icon: Briefcase,
-    color: "bg-blue-100 text-blue-700",
-    images: [
-      "/placeholder.svg?height=300&width=400&text=Business+Meeting",
-      "/placeholder.svg?height=300&width=400&text=Office+Space",
-      "/placeholder.svg?height=300&width=400&text=Team+Work",
-      "/placeholder.svg?height=300&width=400&text=Presentation",
-    ],
-  },
-  {
-    id: "technology",
-    name: "Technologie",
-    icon: Zap,
-    color: "bg-purple-100 text-purple-700",
-    images: [
-      "/placeholder.svg?height=300&width=400&text=AI+Technology",
-      "/placeholder.svg?height=300&width=400&text=Digital+Innovation",
-      "/placeholder.svg?height=300&width=400&text=Code+Development",
-      "/placeholder.svg?height=300&width=400&text=Future+Tech",
-    ],
-  },
-  {
-    id: "lifestyle",
-    name: "Lifestyle",
-    icon: Heart,
-    color: "bg-pink-100 text-pink-700",
-    images: [
-      "/placeholder.svg?height=300&width=400&text=Healthy+Living",
-      "/placeholder.svg?height=300&width=400&text=Work+Life+Balance",
-      "/placeholder.svg?height=300&width=400&text=Travel+Adventure",
-      "/placeholder.svg?height=300&width=400&text=Food+Culture",
-    ],
-  },
-  {
-    id: "marketing",
-    name: "Marketing",
-    icon: TrendingUp,
-    color: "bg-green-100 text-green-700",
-    images: [
-      "/placeholder.svg?height=300&width=400&text=Social+Media+Growth",
-      "/placeholder.svg?height=300&width=400&text=Brand+Strategy",
-      "/placeholder.svg?height=300&width=400&text=Digital+Campaign",
-      "/placeholder.svg?height=300&width=400&text=Analytics+Data",
-    ],
-  },
-  {
-    id: "creative",
-    name: "Créatif",
-    icon: Palette,
-    color: "bg-orange-100 text-orange-700",
-    images: [
-      "/placeholder.svg?height=300&width=400&text=Creative+Design",
-      "/placeholder.svg?height=300&width=400&text=Art+Inspiration",
-      "/placeholder.svg?height=300&width=400&text=Color+Palette",
-      "/placeholder.svg?height=300&width=400&text=Abstract+Art",
-    ],
-  },
-  {
-    id: "nature",
-    name: "Nature",
-    icon: Globe,
-    color: "bg-emerald-100 text-emerald-700",
-    images: [
-      "/placeholder.svg?height=300&width=400&text=Beautiful+Landscape",
-      "/placeholder.svg?height=300&width=400&text=Ocean+View",
-      "/placeholder.svg?height=300&width=400&text=Mountain+Peak",
-      "/placeholder.svg?height=300&width=400&text=Forest+Path",
-    ],
-  },
+  { id: "business", name: "Business", icon: Briefcase, color: "bg-blue-100 text-blue-700" },
+  { id: "technology", name: "Technologie", icon: Zap, color: "bg-purple-100 text-purple-700" },
+  { id: "lifestyle", name: "Lifestyle", icon: Heart, color: "bg-pink-100 text-pink-700" },
+  { id: "marketing", name: "Marketing", icon: Sparkles, color: "bg-orange-100 text-orange-700" },
+  { id: "creative", name: "Créatif", icon: Palette, color: "bg-indigo-100 text-indigo-700" },
+  { id: "nature", name: "Nature", icon: Leaf, color: "bg-green-100 text-green-700" },
 ]
 
-const imageStyles = [
-  { id: "professional", name: "Professionnel", icon: Lightbulb, color: "bg-blue-100 text-blue-700" },
-  { id: "creative", name: "Créatif", icon: Palette, color: "bg-purple-100 text-purple-700" },
-  { id: "tech", name: "Technologie", icon: TrendingUp, color: "bg-green-100 text-green-700" },
-  { id: "marketing", name: "Marketing", icon: Camera, color: "bg-orange-100 text-orange-700" },
-]
+const sampleImages = {
+  business: [
+    "/placeholder.svg?height=300&width=400&text=Business+Meeting",
+    "/placeholder.svg?height=300&width=400&text=Office+Space",
+    "/placeholder.svg?height=300&width=400&text=Team+Work",
+    "/placeholder.svg?height=300&width=400&text=Presentation",
+  ],
+  technology: [
+    "/placeholder.svg?height=300&width=400&text=AI+Technology",
+    "/placeholder.svg?height=300&width=400&text=Digital+Innovation",
+    "/placeholder.svg?height=300&width=400&text=Code+Development",
+    "/placeholder.svg?height=300&width=400&text=Tech+Gadgets",
+  ],
+  lifestyle: [
+    "/placeholder.svg?height=300&width=400&text=Coffee+Break",
+    "/placeholder.svg?height=300&width=400&text=Work+Life+Balance",
+    "/placeholder.svg?height=300&width=400&text=Wellness",
+    "/placeholder.svg?height=300&width=400&text=Inspiration",
+  ],
+  marketing: [
+    "/placeholder.svg?height=300&width=400&text=Social+Media",
+    "/placeholder.svg?height=300&width=400&text=Brand+Strategy",
+    "/placeholder.svg?height=300&width=400&text=Content+Creation",
+    "/placeholder.svg?height=300&width=400&text=Analytics",
+  ],
+  creative: [
+    "/placeholder.svg?height=300&width=400&text=Design+Process",
+    "/placeholder.svg?height=300&width=400&text=Creative+Ideas",
+    "/placeholder.svg?height=300&width=400&text=Art+Studio",
+    "/placeholder.svg?height=300&width=400&text=Innovation",
+  ],
+  nature: [
+    "/placeholder.svg?height=300&width=400&text=Green+Environment",
+    "/placeholder.svg?height=300&width=400&text=Sustainability",
+    "/placeholder.svg?height=300&width=400&text=Natural+Beauty",
+    "/placeholder.svg?height=300&width=400&text=Eco+Friendly",
+  ],
+}
 
 export function EnhancedImageCatalog({
   onImageSelect,
@@ -123,49 +74,64 @@ export function EnhancedImageCatalog({
   postContent,
   platform,
 }: EnhancedImageCatalogProps) {
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [generatedImages, setGeneratedImages] = useState<any[]>([])
-  const [selectedStyle, setSelectedStyle] = useState("professional")
-  const [selectedCategory, setSelectedCategory] = useState("business")
-  const [uploadedImages, setUploadedImages] = useState<string[]>([])
+  const [activeCategory, setActiveCategory] = useState("business")
   const [searchQuery, setSearchQuery] = useState("")
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [uploadedImage, setUploadedImage] = useState<string>("")
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
-    if (!files) return
+  const handleImageUpload = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0]
+      if (!file) return
 
-    Array.from(files).forEach((file) => {
-      if (file.type.startsWith("image/")) {
-        if (file.size > 10 * 1024 * 1024) {
-          toast({
-            title: "Fichier trop volumineux",
-            description: "La taille maximale autorisée est de 10MB.",
-            variant: "destructive",
-          })
-          return
-        }
+      // Validate file size (10MB max)
+      if (file.size > 10 * 1024 * 1024) {
+        toast({
+          title: "Fichier trop volumineux",
+          description: "La taille maximale autorisée est de 10MB.",
+          variant: "destructive",
+        })
+        return
+      }
 
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        toast({
+          title: "Format non supporté",
+          description: "Veuillez sélectionner un fichier image (JPG, PNG, GIF).",
+          variant: "destructive",
+        })
+        return
+      }
+
+      try {
         const reader = new FileReader()
         reader.onload = (e) => {
-          const result = e.target?.result as string
-          setUploadedImages((prev) => [...prev, result])
+          const imageUrl = e.target?.result as string
+          setUploadedImage(imageUrl)
+          onImageSelect(imageUrl)
+          toast({
+            title: "Image uploadée !",
+            description: "Votre image a été ajoutée avec succès.",
+          })
         }
         reader.readAsDataURL(file)
+      } catch (error) {
+        toast({
+          title: "Erreur d'upload",
+          description: "Impossible de charger l'image. Veuillez réessayer.",
+          variant: "destructive",
+        })
       }
-    })
+    },
+    [onImageSelect],
+  )
 
-    toast({
-      title: "Images uploadées !",
-      description: `${files.length} image(s) ajoutée(s) à votre catalogue.`,
-    })
-  }
-
-  const generateImages = async () => {
-    if (!postContent?.trim()) {
+  const generateAIImage = async () => {
+    if (!postContent.trim()) {
       toast({
-        title: "Erreur",
-        description: "Veuillez d'abord saisir du contenu pour générer des images adaptées.",
+        title: "Contenu requis",
+        description: "Veuillez d'abord générer du contenu pour créer une image adaptée.",
         variant: "destructive",
       })
       return
@@ -181,8 +147,8 @@ export function EnhancedImageCatalog({
         },
         body: JSON.stringify({
           prompt: postContent,
-          style: selectedStyle,
-          platform: platform || "linkedin",
+          platform,
+          style: "professional",
         }),
       })
 
@@ -191,17 +157,17 @@ export function EnhancedImageCatalog({
       }
 
       const data = await response.json()
-      setGeneratedImages(data.images || [])
+      onImageSelect(data.imageUrl)
 
       toast({
-        title: "Images générées !",
-        description: `${data.images?.length || 0} images créées selon votre contenu.`,
+        title: "Image générée !",
+        description: "Une image IA adaptée à votre contenu a été créée.",
       })
     } catch (error) {
       console.error("Erreur:", error)
       toast({
         title: "Erreur",
-        description: "Impossible de générer les images. Veuillez réessayer.",
+        description: "Impossible de générer l'image. Veuillez réessayer.",
         variant: "destructive",
       })
     } finally {
@@ -209,238 +175,165 @@ export function EnhancedImageCatalog({
     }
   }
 
-  const currentCategory = imageCategories.find((cat) => cat.id === selectedCategory)
-  const filteredImages = currentCategory?.images.filter((image) =>
-    searchQuery ? image.toLowerCase().includes(searchQuery.toLowerCase()) : true,
-  )
+  const filteredImages = sampleImages[activeCategory as keyof typeof sampleImages] || []
 
   return (
     <FadeIn>
       <Card className="transition-all duration-300 hover:shadow-lg">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ImageIcon className="h-5 w-5 text-primary" />
-            Catalogue d'Images
-          </CardTitle>
-          <CardDescription>Choisissez parmi notre collection ou uploadez vos propres images</CardDescription>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ImageIcon className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg">Catalogue d'Images</CardTitle>
+            </div>
+            <Badge variant="secondary">{selectedImage ? "Image sélectionnée" : "Aucune image"}</Badge>
+          </div>
+          <CardDescription>Choisissez une image ou uploadez la vôtre</CardDescription>
         </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="catalog" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="catalog">Catalogue</TabsTrigger>
-              <TabsTrigger value="generate">Générer IA</TabsTrigger>
-              <TabsTrigger value="upload">Uploader</TabsTrigger>
-            </TabsList>
+        <CardContent className="space-y-6">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Rechercher des images..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 transition-all duration-300 focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
 
-            <TabsContent value="catalog" className="space-y-4">
-              {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          {/* Upload Section */}
+          <div className="space-y-3">
+            <Label className="text-sm font-medium">Upload Personnel</Label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
                 <Input
-                  placeholder="Rechercher des images..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
                 />
+                <p className="text-xs text-muted-foreground mt-1">JPG, PNG, GIF - Max 10MB</p>
               </div>
-
-              {/* Categories */}
-              <div className="space-y-3">
-                <Label>Catégories</Label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {imageCategories.map((category) => {
-                    const Icon = category.icon
-                    return (
-                      <AnimatedButton
-                        key={category.id}
-                        variant={selectedCategory === category.id ? "default" : "outline"}
-                        className={`flex items-center gap-2 h-auto py-2 text-xs ${
-                          selectedCategory === category.id ? "scale-105" : "hover:scale-105"
-                        }`}
-                        onClick={() => setSelectedCategory(category.id)}
-                      >
-                        <Icon className="h-3 w-3" />
-                        {category.name}
-                      </AnimatedButton>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {/* Images Grid */}
-              {filteredImages && filteredImages.length > 0 && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label>{currentCategory?.name}</Label>
-                    <Badge variant="secondary" className={currentCategory?.color}>
-                      {filteredImages.length} images
-                    </Badge>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    {filteredImages.map((imageUrl, index) => (
-                      <div
-                        key={index}
-                        className={`relative cursor-pointer group rounded-lg overflow-hidden border-2 transition-all duration-300 hover:scale-105 ${
-                          selectedImage === imageUrl
-                            ? "border-primary shadow-lg"
-                            : "border-transparent hover:border-primary/50"
-                        }`}
-                        onClick={() => onImageSelect(imageUrl)}
-                      >
-                        <img
-                          src={imageUrl || "/placeholder.svg"}
-                          alt={`Catalog image ${index + 1}`}
-                          className="w-full aspect-[4/3] object-cover"
-                        />
-                        {selectedImage === imageUrl && (
-                          <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                            <div className="bg-primary text-primary-foreground rounded-full p-1">
-                              <Check className="h-4 w-4" />
-                            </div>
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="generate" className="space-y-4">
-              {/* Style Selection */}
-              <div className="space-y-3">
-                <Label>Style d'image</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {imageStyles.map((style) => {
-                    const Icon = style.icon
-                    return (
-                      <AnimatedButton
-                        key={style.id}
-                        variant={selectedStyle === style.id ? "default" : "outline"}
-                        className={`flex items-center gap-2 h-auto py-2 ${
-                          selectedStyle === style.id ? "scale-105" : "hover:scale-105"
-                        }`}
-                        onClick={() => setSelectedStyle(style.id)}
-                      >
-                        <Icon className="h-4 w-4" />
-                        <span className="text-xs">{style.name}</span>
-                      </AnimatedButton>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {/* Generate Button */}
               <AnimatedButton
-                onClick={generateImages}
-                disabled={isGenerating || !postContent?.trim()}
-                className="w-full"
+                onClick={generateAIImage}
+                disabled={isGenerating || !postContent.trim()}
+                variant="outline"
+                className="group"
               >
                 {isGenerating ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
-                    Génération en cours...
+                    Génération...
                   </>
                 ) : (
                   <>
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Générer des images
+                    <Sparkles className="mr-2 h-4 w-4 transition-transform group-hover:rotate-12" />
+                    Générer avec IA
                   </>
                 )}
               </AnimatedButton>
+            </div>
+          </div>
 
-              {/* Generated Images Grid */}
-              {generatedImages.length > 0 && (
-                <div className="space-y-3">
-                  <Label>Images générées</Label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {generatedImages.map((image, index) => (
-                      <div
-                        key={image.id || index}
-                        className={`relative cursor-pointer group rounded-lg overflow-hidden border-2 transition-all duration-300 hover:scale-105 ${
-                          selectedImage === image.url
-                            ? "border-primary shadow-lg"
-                            : "border-transparent hover:border-primary/50"
-                        }`}
-                        onClick={() => onImageSelect(image.url)}
-                      >
-                        <img
-                          src={image.url || "/placeholder.svg"}
-                          alt={`Generated image ${index + 1}`}
-                          className="w-full aspect-square object-cover"
-                        />
-                        {selectedImage === image.url && (
-                          <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                            <div className="bg-primary text-primary-foreground rounded-full p-1">
-                              <Check className="h-4 w-4" />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
+          {/* Categories */}
+          <div className="space-y-3">
+            <Label className="text-sm font-medium">Catégories</Label>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {imageCategories.map((category) => {
+                const Icon = category.icon
+                return (
+                  <AnimatedButton
+                    key={category.id}
+                    variant={activeCategory === category.id ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setActiveCategory(category.id)}
+                    className={`justify-start transition-all duration-200 ${
+                      activeCategory === category.id ? "scale-105 shadow-md" : "hover:scale-105"
+                    }`}
+                  >
+                    <Icon className="mr-2 h-4 w-4" />
+                    {category.name}
+                  </AnimatedButton>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Image Grid */}
+          <div className="space-y-3">
+            <Label className="text-sm font-medium">Images Disponibles</Label>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {uploadedImage && (
+                <div
+                  className={`relative group cursor-pointer rounded-lg overflow-hidden transition-all duration-300 hover:scale-105 ${
+                    selectedImage === uploadedImage ? "ring-2 ring-primary shadow-lg" : ""
+                  }`}
+                  onClick={() => onImageSelect(uploadedImage)}
+                >
+                  <img
+                    src={uploadedImage || "/placeholder.svg"}
+                    alt="Image uploadée"
+                    className="w-full h-32 object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+                  <div className="absolute top-2 left-2">
+                    <Badge variant="secondary" className="text-xs">
+                      <Upload className="h-3 w-3 mr-1" />
+                      Uploadée
+                    </Badge>
                   </div>
+                  {selectedImage === uploadedImage && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="bg-primary text-primary-foreground rounded-full p-2">
+                        <Camera className="h-4 w-4" />
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
-            </TabsContent>
 
-            <TabsContent value="upload" className="space-y-4">
-              {/* Upload Area */}
-              <div
-                className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-primary transition-all duration-300 hover:bg-primary/5"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <p className="text-sm text-gray-600 mb-2">Cliquez pour uploader ou glissez-déposez vos images</p>
-                <p className="text-xs text-gray-500">PNG, JPG, WEBP jusqu'à 10MB</p>
+              {filteredImages.map((imageUrl, index) => (
+                <div
+                  key={index}
+                  className={`relative group cursor-pointer rounded-lg overflow-hidden transition-all duration-300 hover:scale-105 ${
+                    selectedImage === imageUrl ? "ring-2 ring-primary shadow-lg" : ""
+                  }`}
+                  onClick={() => onImageSelect(imageUrl)}
+                >
+                  <img
+                    src={imageUrl || "/placeholder.svg"}
+                    alt={`Image ${activeCategory} ${index + 1}`}
+                    className="w-full h-32 object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+                  {selectedImage === imageUrl && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="bg-primary text-primary-foreground rounded-full p-2">
+                        <Camera className="h-4 w-4" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {selectedImage && (
+            <div className="pt-4 border-t">
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">Image sélectionnée</p>
+                <AnimatedButton
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onImageSelect("")}
+                  className="text-destructive hover:text-destructive"
+                >
+                  Supprimer
+                </AnimatedButton>
               </div>
-
-              <Input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-
-              {/* Uploaded Images Grid */}
-              {uploadedImages.length > 0 && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label>Vos images</Label>
-                    <Badge variant="secondary">{uploadedImages.length} images</Badge>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    {uploadedImages.map((imageUrl, index) => (
-                      <div
-                        key={index}
-                        className={`relative cursor-pointer group rounded-lg overflow-hidden border-2 transition-all duration-300 hover:scale-105 ${
-                          selectedImage === imageUrl
-                            ? "border-primary shadow-lg"
-                            : "border-transparent hover:border-primary/50"
-                        }`}
-                        onClick={() => onImageSelect(imageUrl)}
-                      >
-                        <img
-                          src={imageUrl || "/placeholder.svg"}
-                          alt={`Uploaded image ${index + 1}`}
-                          className="w-full aspect-square object-cover"
-                        />
-                        {selectedImage === imageUrl && (
-                          <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                            <div className="bg-primary text-primary-foreground rounded-full p-1">
-                              <Check className="h-4 w-4" />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
+            </div>
+          )}
         </CardContent>
       </Card>
     </FadeIn>

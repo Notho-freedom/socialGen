@@ -1,21 +1,20 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
+import { AnimatedButton } from "@/components/animated-button"
 import { Separator } from "@/components/ui/separator"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import {
   Bold,
   Italic,
   Underline,
   Heading1,
   Heading2,
+  Quote,
   List,
   ListOrdered,
-  Quote,
   Link,
+  Smile,
   Hash,
   AtSign,
-  Smile,
 } from "lucide-react"
 
 interface TextFormattingToolbarProps {
@@ -25,124 +24,100 @@ interface TextFormattingToolbarProps {
 
 export function TextFormattingToolbar({ onFormat, onInsert }: TextFormattingToolbarProps) {
   const formatButtons = [
-    { icon: Bold, label: "Gras", format: "bold", shortcut: "Ctrl+B" },
-    { icon: Italic, label: "Italique", format: "italic", shortcut: "Ctrl+I" },
-    { icon: Underline, label: "Souligné", format: "underline", shortcut: "Ctrl+U" },
+    { icon: Bold, action: "bold", tooltip: "Gras (Ctrl+B)" },
+    { icon: Italic, action: "italic", tooltip: "Italique (Ctrl+I)" },
+    { icon: Underline, action: "underline", tooltip: "Souligné (Ctrl+U)" },
   ]
 
   const headingButtons = [
-    { icon: Heading1, label: "Titre 1", format: "h1" },
-    { icon: Heading2, label: "Titre 2", format: "h2" },
+    { icon: Heading1, action: "h1", tooltip: "Titre 1" },
+    { icon: Heading2, action: "h2", tooltip: "Titre 2" },
+    { icon: Quote, action: "quote", tooltip: "Citation" },
   ]
 
   const listButtons = [
-    { icon: List, label: "Liste à puces", format: "ul" },
-    { icon: ListOrdered, label: "Liste numérotée", format: "ol" },
-    { icon: Quote, label: "Citation", format: "quote" },
+    { icon: List, action: "ul", tooltip: "Liste à puces" },
+    { icon: ListOrdered, action: "ol", tooltip: "Liste numérotée" },
   ]
 
   const insertButtons = [
-    { icon: Hash, label: "Hashtag", text: "#" },
-    { icon: AtSign, label: "Mention", text: "@" },
-    { icon: Link, label: "Lien", text: "https://" },
-    { icon: Smile, label: "Emoji", text: "😊" },
+    { icon: Link, text: "[lien](url)", tooltip: "Insérer un lien" },
+    { icon: Smile, text: "😊", tooltip: "Insérer un emoji" },
+    { icon: Hash, text: "#hashtag", tooltip: "Insérer un hashtag" },
+    { icon: AtSign, text: "@mention", tooltip: "Insérer une mention" },
   ]
 
   return (
-    <TooltipProvider>
-      <div className="flex items-center gap-1 p-2 border rounded-lg bg-background">
-        {/* Text Formatting */}
-        <div className="flex items-center gap-1">
-          {formatButtons.map((button) => (
-            <Tooltip key={button.format}>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onFormat(button.format)}
-                  className="h-8 w-8 p-0 hover:bg-primary/10"
-                >
-                  <button.icon className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>
-                  {button.label} ({button.shortcut})
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          ))}
-        </div>
-
-        <Separator orientation="vertical" className="h-6" />
-
-        {/* Headings */}
-        <div className="flex items-center gap-1">
-          {headingButtons.map((button) => (
-            <Tooltip key={button.format}>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onFormat(button.format)}
-                  className="h-8 w-8 p-0 hover:bg-primary/10"
-                >
-                  <button.icon className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{button.label}</p>
-              </TooltipContent>
-            </Tooltip>
-          ))}
-        </div>
-
-        <Separator orientation="vertical" className="h-6" />
-
-        {/* Lists */}
-        <div className="flex items-center gap-1">
-          {listButtons.map((button) => (
-            <Tooltip key={button.format}>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onFormat(button.format)}
-                  className="h-8 w-8 p-0 hover:bg-primary/10"
-                >
-                  <button.icon className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{button.label}</p>
-              </TooltipContent>
-            </Tooltip>
-          ))}
-        </div>
-
-        <Separator orientation="vertical" className="h-6" />
-
-        {/* Insert Elements */}
-        <div className="flex items-center gap-1">
-          {insertButtons.map((button) => (
-            <Tooltip key={button.text}>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onInsert(button.text)}
-                  className="h-8 w-8 p-0 hover:bg-primary/10"
-                >
-                  <button.icon className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{button.label}</p>
-              </TooltipContent>
-            </Tooltip>
-          ))}
-        </div>
+    <div className="flex flex-wrap items-center gap-1 p-2 border rounded-lg bg-muted/20">
+      {/* Format buttons */}
+      <div className="flex items-center gap-1">
+        {formatButtons.map((button) => (
+          <AnimatedButton
+            key={button.action}
+            variant="ghost"
+            size="sm"
+            onClick={() => onFormat(button.action)}
+            className="h-8 w-8 p-0 hover:bg-primary/10"
+            title={button.tooltip}
+          >
+            <button.icon className="h-4 w-4" />
+          </AnimatedButton>
+        ))}
       </div>
-    </TooltipProvider>
+
+      <Separator orientation="vertical" className="h-6" />
+
+      {/* Heading buttons */}
+      <div className="flex items-center gap-1">
+        {headingButtons.map((button) => (
+          <AnimatedButton
+            key={button.action}
+            variant="ghost"
+            size="sm"
+            onClick={() => onFormat(button.action)}
+            className="h-8 w-8 p-0 hover:bg-primary/10"
+            title={button.tooltip}
+          >
+            <button.icon className="h-4 w-4" />
+          </AnimatedButton>
+        ))}
+      </div>
+
+      <Separator orientation="vertical" className="h-6" />
+
+      {/* List buttons */}
+      <div className="flex items-center gap-1">
+        {listButtons.map((button) => (
+          <AnimatedButton
+            key={button.action}
+            variant="ghost"
+            size="sm"
+            onClick={() => onFormat(button.action)}
+            className="h-8 w-8 p-0 hover:bg-primary/10"
+            title={button.tooltip}
+          >
+            <button.icon className="h-4 w-4" />
+          </AnimatedButton>
+        ))}
+      </div>
+
+      <Separator orientation="vertical" className="h-6" />
+
+      {/* Insert buttons */}
+      <div className="flex items-center gap-1">
+        {insertButtons.map((button) => (
+          <AnimatedButton
+            key={button.text}
+            variant="ghost"
+            size="sm"
+            onClick={() => onInsert(button.text)}
+            className="h-8 w-8 p-0 hover:bg-primary/10"
+            title={button.tooltip}
+          >
+            <button.icon className="h-4 w-4" />
+          </AnimatedButton>
+        ))}
+      </div>
+    </div>
   )
 }

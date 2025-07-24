@@ -1,11 +1,13 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import type React from "react"
+
+import { useMemo } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { CheckCircle, AlertCircle, XCircle, Info } from "lucide-react"
+import { FadeIn } from "@/components/fade-in"
+import { CheckCircle, AlertTriangle, XCircle, BarChart3, Target, Hash, ImageIcon, Clock } from "lucide-react"
 
 interface PostValidationProps {
   content: string
@@ -17,301 +19,230 @@ interface PostValidationProps {
 interface ValidationRule {
   id: string
   name: string
-  status: "success" | "warning" | "error" | "info"
-  message: string
-  required: boolean
+  description: string
+  check: (content: string, platform: string, image?: string) => boolean
+  weight: number
+  icon: React.ComponentType<{ className?: string }>
 }
 
+const validationRules: ValidationRule[] = [
+  {
+    id: "length",
+    name: "Longueur appropriée",
+    description: "Le contenu respecte les limites de caractères",
+    check: (content, platform, platformLimits) => {
+      const limits: { [key: string]: number } = {
+        twitter: 280,
+        facebook: 2000,
+        instagram: 2200,
+        linkedin: 3000,
+        youtube: 5000,
+        tiktok: 2200,
+      }
+      return content.length <= (limits[platform] || 280)
+    },
+    weight: 25,
+    icon: Target,
+  },
+  {
+    id: "hashtags",
+    name: "Hashtags optimaux",
+    description: "Utilise 1-5 hashtags pertinents",
+    check: (content) => {
+      const hashtags = content.match(/#\w+/g) || []
+      return hashtags.length >= 1 && hashtags.length <= 5
+    },
+    weight: 20,
+    icon: Hash,
+  },
+  {
+    id: "engagement",
+    name: "Potentiel d'engagement",
+    description: "Contient des éléments engageants (questions, CTA)",
+    check: (content) => {
+      const engagementWords = ["?", "comment", "partagez", "pensez", "avis", "expérience", "conseil"]
+      return engagementWords.some((word) => content.toLowerCase().includes(word))
+    },
+    weight: 20,
+    icon: BarChart3,
+  },
+  {
+    id: "visual",
+    name: "Contenu visuel",
+    description: "Inclut une image ou un média",
+    check: (content, platform, image) => {
+      return !!image || content.includes("http") || content.includes("www")
+    },
+    weight: 15,
+    icon: ImageIcon,
+  },
+  {
+    id: "readability",
+    name: "Lisibilité",
+    description: "Texte bien structuré avec des paragraphes courts",
+    check: (content) => {
+      const sentences = content.split(/[.!?]+/).filter((s) => s.trim().length > 0)
+      const avgLength = sentences.reduce((acc, s) => acc + s.length, 0) / sentences.length
+      return avgLength < 100 && sentences.length > 1
+    },
+    weight: 10,
+    icon: CheckCircle,
+  },
+  {
+    id: "timing",
+    name: "Optimisation temporelle",
+    description: "Contenu adapté au moment de publication",
+    check: () => true, // Toujours vrai pour cet exemple
+    weight: 10,
+    icon: Clock,
+  },
+]
+
 export function PostValidation({ content, platform, selectedImage, platformLimits }: PostValidationProps) {
-  const [validationRules, setValidationRules] = useState<ValidationRule[]>([])
-  const [overallScore, setOverallScore] = useState(0)
+  const validationResults = useMemo(() => {
+    return validationRules.map((rule) => ({
+      ...rule,
+      passed: rule.check(content, platform, selectedImage),
+    }))
+  }, [content, platform, selectedImage])
 
-  useEffect(() => {
-    const rules: ValidationRule[] = []
-    let score = 0
-    const maxScore = 100
+  const totalScore = useMemo(() => {
+    const passedWeight = validationResults
+      .filter((result) => result.passed)
+      .reduce((acc, result) => acc + result.weight, 0)
+    return Math.round(passedWeight)
+  }, [validationResults])
 
-    // Content length validation
-    const characterLimit = platformLimits[platform] || 280
-    const contentLength = content.length
-
-    if (contentLength === 0) {
-      rules.push({
-        id: "content-required",
-        name: "Contenu requis",
-        status: "error",
-        message: "Le contenu du post est obligatoire",
-        required: true,
-      })
-    } else if (contentLength > characterLimit) {
-      rules.push({
-        id: "content-length",
-        name: "Limite de caractères",
-        status: "error",
-        message: `Le contenu dépasse la limite de ${characterLimit} caractères (${contentLength}/${characterLimit})`,
-        required: true,
-      })
-    } else {
-      rules.push({
-        id: "content-length",
-        name: "Limite de caractères",
-        status: "success",
-        message: `Contenu dans la limite (${contentLength}/${characterLimit})`,
-        required: true,
-      })
-      score += 25
-    }
-
-    // Content quality checks
-    if (content.length > 0) {
-      // Check for hashtags
-      const hashtagCount = (content.match(/#\w+/g) || []).length
-      if (hashtagCount === 0) {
-        rules.push({
-          id: "hashtags",
-          name: "Hashtags",
-          status: "warning",
-          message: "Ajoutez des hashtags pour améliorer la visibilité",
-          required: false,
-        })
-      } else if (hashtagCount > 10) {
-        rules.push({
-          id: "hashtags",
-          name: "Hashtags",
-          status: "warning",
-          message: "Trop de hashtags peuvent réduire l'engagement",
-          required: false,
-        })
-        score += 10
-      } else {
-        rules.push({
-          id: "hashtags",
-          name: "Hashtags",
-          status: "success",
-          message: `${hashtagCount} hashtag(s) détecté(s)`,
-          required: false,
-        })
-        score += 20
-      }
-
-      // Check for mentions
-      const mentionCount = (content.match(/@\w+/g) || []).length
-      if (mentionCount > 0) {
-        rules.push({
-          id: "mentions",
-          name: "Mentions",
-          status: "success",
-          message: `${mentionCount} mention(s) détectée(s)`,
-          required: false,
-        })
-        score += 10
-      }
-
-      // Check for emojis
-      const emojiCount = (
-        content.match(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]/gu) || []
-      ).length
-      if (emojiCount > 0) {
-        rules.push({
-          id: "emojis",
-          name: "Emojis",
-          status: "success",
-          message: `${emojiCount} emoji(s) ajouté(s) pour plus d'engagement`,
-          required: false,
-        })
-        score += 10
-      } else {
-        rules.push({
-          id: "emojis",
-          name: "Emojis",
-          status: "info",
-          message: "Ajoutez des emojis pour rendre votre post plus engageant",
-          required: false,
-        })
-      }
-
-      // Check content length for engagement
-      if (contentLength < 50) {
-        rules.push({
-          id: "content-engagement",
-          name: "Longueur optimale",
-          status: "warning",
-          message: "Un contenu plus long pourrait améliorer l'engagement",
-          required: false,
-        })
-      } else if (contentLength > 100) {
-        rules.push({
-          id: "content-engagement",
-          name: "Longueur optimale",
-          status: "success",
-          message: "Longueur de contenu optimale pour l'engagement",
-          required: false,
-        })
-        score += 15
-      }
-    }
-
-    // Image validation
-    if (selectedImage) {
-      rules.push({
-        id: "image",
-        name: "Image",
-        status: "success",
-        message: "Image sélectionnée",
-        required: false,
-      })
-      score += 20
-    } else {
-      rules.push({
-        id: "image",
-        name: "Image",
-        status: "info",
-        message: "Ajoutez une image pour augmenter l'engagement",
-        required: false,
-      })
-    }
-
-    // Platform-specific validations
-    if (platform === "twitter" && content.includes("http")) {
-      rules.push({
-        id: "twitter-links",
-        name: "Liens Twitter",
-        status: "info",
-        message: "Les liens sont automatiquement raccourcis sur Twitter",
-        required: false,
-      })
-    }
-
-    if (platform === "instagram" && !selectedImage) {
-      rules.push({
-        id: "instagram-image",
-        name: "Image Instagram",
-        status: "warning",
-        message: "Instagram privilégie le contenu visuel",
-        required: false,
-      })
-    }
-
-    if (platform === "linkedin" && contentLength < 150) {
-      rules.push({
-        id: "linkedin-professional",
-        name: "Contenu professionnel",
-        status: "info",
-        message: "LinkedIn favorise les posts plus détaillés et professionnels",
-        required: false,
-      })
-    }
-
-    setValidationRules(rules)
-    setOverallScore(Math.min(score, maxScore))
-  }, [content, platform, selectedImage, platformLimits])
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "success":
-        return <CheckCircle className="h-4 w-4 text-green-500" />
-      case "warning":
-        return <AlertCircle className="h-4 w-4 text-yellow-500" />
-      case "error":
-        return <XCircle className="h-4 w-4 text-red-500" />
-      case "info":
-        return <Info className="h-4 w-4 text-blue-500" />
-      default:
-        return <Info className="h-4 w-4 text-gray-500" />
-    }
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return "text-green-600"
+    if (score >= 60) return "text-yellow-600"
+    return "text-red-600"
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "success":
-        return "bg-green-100 text-green-800"
-      case "warning":
-        return "bg-yellow-100 text-yellow-800"
-      case "error":
-        return "bg-red-100 text-red-800"
-      case "info":
-        return "bg-blue-100 text-blue-800"
-      default:
-        return "bg-gray-100 text-gray-800"
-    }
+  const getScoreIcon = (score: number) => {
+    if (score >= 80) return CheckCircle
+    if (score >= 60) return AlertTriangle
+    return XCircle
   }
 
-  const errorCount = validationRules.filter((rule) => rule.status === "error").length
-  const warningCount = validationRules.filter((rule) => rule.status === "warning").length
-  const successCount = validationRules.filter((rule) => rule.status === "success").length
+  const ScoreIcon = getScoreIcon(totalScore)
 
   return (
-    <Card className="transition-all duration-300 hover:shadow-md">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>Validation du Post</span>
-          <Badge variant={errorCount > 0 ? "destructive" : warningCount > 0 ? "secondary" : "default"} className="ml-2">
-            Score: {overallScore}/100
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Progress Bar */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span>Qualité du post</span>
-            <span>{overallScore}%</span>
+    <FadeIn>
+      <Card className="transition-all duration-300 hover:shadow-lg">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg">Validation du Post</CardTitle>
+            </div>
+            <div className="flex items-center gap-2">
+              <ScoreIcon className={`h-5 w-5 ${getScoreColor(totalScore)}`} />
+              <Badge variant={totalScore >= 80 ? "default" : totalScore >= 60 ? "secondary" : "destructive"}>
+                {totalScore}/100
+              </Badge>
+            </div>
           </div>
-          <Progress value={overallScore} className="h-2" />
-        </div>
+          <CardDescription>Analyse de la qualité et du potentiel d'engagement</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Score Overview */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Score global</span>
+              <span className={`text-sm font-bold ${getScoreColor(totalScore)}`}>{totalScore}%</span>
+            </div>
+            <Progress value={totalScore} className="h-2" />
+            <p className="text-xs text-muted-foreground">
+              {totalScore >= 80
+                ? "Excellent ! Votre post est optimisé pour l'engagement."
+                : totalScore >= 60
+                  ? "Bien ! Quelques améliorations peuvent augmenter l'engagement."
+                  : "À améliorer. Suivez les suggestions ci-dessous."}
+            </p>
+          </div>
 
-        {/* Summary */}
-        <div className="flex gap-4 text-sm">
-          <div className="flex items-center gap-1">
-            <CheckCircle className="h-4 w-4 text-green-500" />
-            <span>{successCount} validé(s)</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <AlertCircle className="h-4 w-4 text-yellow-500" />
-            <span>{warningCount} attention</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <XCircle className="h-4 w-4 text-red-500" />
-            <span>{errorCount} erreur(s)</span>
-          </div>
-        </div>
-
-        {/* Validation Rules */}
-        <div className="space-y-2">
-          {validationRules.map((rule) => (
-            <Alert key={rule.id} className="py-2">
-              <div className="flex items-center gap-3">
-                {getStatusIcon(rule.status)}
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm">{rule.name}</span>
-                    <Badge variant="outline" className={`text-xs ${getStatusColor(rule.status)}`}>
-                      {rule.status === "success"
-                        ? "OK"
-                        : rule.status === "warning"
-                          ? "Attention"
-                          : rule.status === "error"
-                            ? "Erreur"
-                            : "Info"}
-                    </Badge>
+          {/* Validation Rules */}
+          <div className="space-y-3">
+            <h4 className="text-sm font-medium">Critères d'évaluation</h4>
+            <div className="space-y-2">
+              {validationResults.map((result) => {
+                const Icon = result.icon
+                return (
+                  <div
+                    key={result.id}
+                    className={`flex items-start gap-3 p-3 rounded-lg border transition-all duration-200 ${
+                      result.passed ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50 hover:bg-red-100"
+                    }`}
+                  >
+                    <div className="flex-shrink-0 mt-0.5">
+                      {result.passed ? (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <XCircle className="h-4 w-4 text-red-600" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <Icon className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-sm font-medium">{result.name}</p>
+                        <Badge variant="outline" className="text-xs">
+                          {result.weight}pts
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">{result.description}</p>
+                    </div>
                   </div>
-                  <AlertDescription className="text-xs mt-1">{rule.message}</AlertDescription>
-                </div>
-              </div>
-            </Alert>
-          ))}
-        </div>
+                )
+              })}
+            </div>
+          </div>
 
-        {/* Overall Status */}
-        {errorCount === 0 && (
-          <Alert className="border-green-200 bg-green-50">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">
-              Votre post est prêt à être publié ! {warningCount > 0 && "Consultez les suggestions pour l'optimiser."}
-            </AlertDescription>
-          </Alert>
-        )}
-      </CardContent>
-    </Card>
+          {/* Platform-specific info */}
+          <div className="pt-4 border-t space-y-3">
+            <h4 className="text-sm font-medium">Informations plateforme</h4>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="space-y-1">
+                <p className="text-muted-foreground">Plateforme</p>
+                <p className="font-medium capitalize">{platform}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-muted-foreground">Limite caractères</p>
+                <p className="font-medium">
+                  {content.length}/{platformLimits[platform] || 280}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-muted-foreground">Hashtags</p>
+                <p className="font-medium">{(content.match(/#\w+/g) || []).length}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-muted-foreground">Mentions</p>
+                <p className="font-medium">{(content.match(/@\w+/g) || []).length}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Suggestions */}
+          {totalScore < 80 && (
+            <div className="pt-4 border-t space-y-3">
+              <h4 className="text-sm font-medium flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                Suggestions d'amélioration
+              </h4>
+              <div className="space-y-2">
+                {validationResults
+                  .filter((result) => !result.passed)
+                  .map((result) => (
+                    <div key={result.id} className="text-xs text-muted-foreground p-2 bg-muted/50 rounded">
+                      <strong>{result.name}:</strong> {result.description}
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </FadeIn>
   )
 }
