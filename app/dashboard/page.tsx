@@ -1,203 +1,230 @@
-import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
+import { Sidebar } from "@/components/sidebar"
 import { StatsCards } from "@/components/stats-cards"
 import { RecentActivity } from "@/components/recent-activity"
-import { DemoBanner } from "@/components/demo-banner"
+import { PostGenerator } from "@/components/post-generator"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Calendar, Target, Zap, Plus, BarChart3, Users } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { PlusCircle, Calendar, Target, TrendingUp, Clock, CheckCircle2, AlertCircle } from "lucide-react"
+import Link from "next/link"
 
 export default function DashboardPage() {
   const quickActions = [
     {
-      title: "Nouveau post",
-      description: "Créer du contenu avec l'IA",
-      icon: Plus,
-      href: "/generator",
+      title: "Créer un post",
+      description: "Générer du contenu avec l'IA",
+      icon: PlusCircle,
+      href: "/dashboard/create",
       color: "bg-blue-500",
     },
     {
       title: "Planifier",
       description: "Programmer vos publications",
       icon: Calendar,
-      href: "/scheduler",
+      href: "/dashboard/schedule",
       color: "bg-green-500",
     },
     {
       title: "Analytics",
       description: "Voir les performances",
-      icon: BarChart3,
-      href: "/analytics",
+      icon: TrendingUp,
+      href: "/dashboard/analytics",
       color: "bg-purple-500",
-    },
-    {
-      title: "Audience",
-      description: "Analyser votre communauté",
-      icon: Users,
-      href: "/audience",
-      color: "bg-orange-500",
     },
   ]
 
   const upcomingPosts = [
     {
-      title: "Post motivant du lundi",
+      id: 1,
+      title: "Post LinkedIn - Conseils productivité",
       platform: "LinkedIn",
-      scheduledFor: "Demain 9:00",
+      scheduledFor: "Aujourd'hui 14:00",
       status: "scheduled",
     },
     {
-      title: "Thread marketing digital",
-      platform: "Twitter",
-      scheduledFor: "Mercredi 14:00",
-      status: "scheduled",
-    },
-    {
-      title: "Behind the scenes",
+      id: 2,
+      title: "Story Instagram - Behind the scenes",
       platform: "Instagram",
-      scheduledFor: "Vendredi 18:00",
-      status: "draft",
+      scheduledFor: "Demain 09:00",
+      status: "scheduled",
+    },
+    {
+      id: 3,
+      title: "Tweet - Innovation tech",
+      platform: "Twitter",
+      scheduledFor: "Demain 16:30",
+      status: "scheduled",
     },
   ]
 
-  const goals = [
+  const monthlyGoals = [
     {
-      title: "Posts ce mois",
+      title: "Posts créés",
       current: 24,
       target: 30,
-      progress: 80,
+      percentage: 80,
     },
     {
-      title: "Engagement rate",
-      current: 7.2,
-      target: 8.0,
-      progress: 90,
+      title: "Engagement",
+      current: 3200,
+      target: 4000,
+      percentage: 80,
     },
     {
       title: "Nouveaux followers",
       current: 156,
       target: 200,
-      progress: 78,
+      percentage: 78,
     },
   ]
 
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar />
+    <div className="min-h-screen bg-background">
+      <Header />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
+      <div className="flex">
+        <Sidebar />
 
-        <main className="flex-1 overflow-auto p-6">
-          <div className="space-y-6">
-            {/* Demo Banner */}
-            <DemoBanner />
-
+        <main className="flex-1 p-6 lg:p-8">
+          <div className="mx-auto max-w-7xl space-y-8">
             {/* Welcome Section */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <h1 className="text-3xl font-bold">Bonjour, John ! 👋</h1>
-                <p className="text-muted-foreground">Voici un aperçu de vos performances aujourd'hui</p>
+                <p className="text-muted-foreground">Voici un aperçu de votre activité aujourd'hui</p>
               </div>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Nouveau post
-              </Button>
+              <div className="flex gap-3">
+                <Button asChild>
+                  <Link href="/dashboard/create">
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Nouveau post
+                  </Link>
+                </Button>
+              </div>
             </div>
 
             {/* Stats Cards */}
             <StatsCards />
 
-            <div className="grid gap-6 lg:grid-cols-3">
-              {/* Quick Actions */}
-              <Card className="lg:col-span-1">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Zap className="mr-2 h-5 w-5" />
-                    Actions rapides
-                  </CardTitle>
-                  <CardDescription>Accès direct à vos outils favoris</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Actions rapides</CardTitle>
+                <CardDescription>Accédez rapidement aux fonctionnalités principales</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 md:grid-cols-3">
                   {quickActions.map((action, index) => (
-                    <Button
-                      key={index}
-                      variant="outline"
-                      className="w-full justify-start h-auto p-4 bg-transparent"
-                      asChild
-                    >
-                      <a href={action.href}>
-                        <div className={`mr-3 p-2 rounded-md ${action.color}`}>
-                          <action.icon className="h-4 w-4 text-white" />
+                    <Link key={index} href={action.href}>
+                      <div className="flex items-center gap-4 rounded-lg border p-4 transition-colors hover:bg-muted/50">
+                        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${action.color}`}>
+                          <action.icon className="h-5 w-5 text-white" />
                         </div>
-                        <div className="text-left">
-                          <div className="font-medium">{action.title}</div>
-                          <div className="text-xs text-muted-foreground">{action.description}</div>
-                        </div>
-                      </a>
-                    </Button>
-                  ))}
-                </CardContent>
-              </Card>
-
-              {/* Upcoming Posts */}
-              <Card className="lg:col-span-1">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Calendar className="mr-2 h-5 w-5" />
-                    Posts programmés
-                  </CardTitle>
-                  <CardDescription>Vos prochaines publications</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {upcomingPosts.map((post, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex-1">
-                        <div className="font-medium text-sm">{post.title}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {post.platform} • {post.scheduledFor}
+                        <div>
+                          <h3 className="font-medium">{action.title}</h3>
+                          <p className="text-sm text-muted-foreground">{action.description}</p>
                         </div>
                       </div>
-                      <Badge variant={post.status === "scheduled" ? "default" : "outline"}>
-                        {post.status === "scheduled" ? "Programmé" : "Brouillon"}
-                      </Badge>
-                    </div>
+                    </Link>
                   ))}
-                  <Button variant="outline" className="w-full bg-transparent">
-                    Voir tout le planning
-                  </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </CardContent>
+            </Card>
 
-              {/* Goals Progress */}
-              <Card className="lg:col-span-1">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Target className="mr-2 h-5 w-5" />
-                    Objectifs du mois
-                  </CardTitle>
-                  <CardDescription>Votre progression vers vos objectifs</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {goals.map((goal, index) => (
-                    <div key={index} className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="font-medium">{goal.title}</span>
-                        <span className="text-muted-foreground">
-                          {goal.current}/{goal.target}
-                        </span>
-                      </div>
-                      <Progress value={goal.progress} className="h-2" />
+            <div className="grid gap-8 lg:grid-cols-3">
+              {/* Main Content Area */}
+              <div className="lg:col-span-2 space-y-8">
+                {/* Post Generator */}
+                <PostGenerator />
+
+                {/* Recent Activity */}
+                <RecentActivity />
+              </div>
+
+              {/* Sidebar Content */}
+              <div className="space-y-8">
+                {/* Upcoming Posts */}
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="flex items-center gap-2">
+                        <Clock className="h-5 w-5" />
+                        Posts programmés
+                      </CardTitle>
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href="/dashboard/schedule">Voir tout</Link>
+                      </Button>
                     </div>
-                  ))}
-                </CardContent>
-              </Card>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {upcomingPosts.map((post) => (
+                      <div key={post.id} className="flex items-start gap-3 rounded-lg border p-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
+                          <Calendar className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-sm truncate">{post.title}</h4>
+                          <p className="text-xs text-muted-foreground">{post.platform}</p>
+                          <div className="flex items-center gap-1 mt-1">
+                            <Clock className="h-3 w-3 text-muted-foreground" />
+                            <span className="text-xs text-muted-foreground">{post.scheduledFor}</span>
+                          </div>
+                        </div>
+                        <Badge variant="outline" className="text-xs">
+                          Programmé
+                        </Badge>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                {/* Monthly Goals */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Target className="h-5 w-5" />
+                      Objectifs du mois
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {monthlyGoals.map((goal, index) => (
+                      <div key={index} className="space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="font-medium">{goal.title}</span>
+                          <span className="text-muted-foreground">
+                            {goal.current.toLocaleString()} / {goal.target.toLocaleString()}
+                          </span>
+                        </div>
+                        <Progress value={goal.percentage} className="h-2" />
+                        <div className="flex items-center gap-1">
+                          {goal.percentage >= 80 ? (
+                            <CheckCircle2 className="h-3 w-3 text-green-500" />
+                          ) : (
+                            <AlertCircle className="h-3 w-3 text-yellow-500" />
+                          )}
+                          <span className="text-xs text-muted-foreground">{goal.percentage}% complété</span>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                {/* Tips Card */}
+                <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+                  <CardHeader>
+                    <CardTitle className="text-blue-900">💡 Conseil du jour</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-blue-800 leading-relaxed">
+                      Publiez vos contenus LinkedIn entre 8h-10h et 17h-18h pour maximiser l'engagement. Ces créneaux
+                      correspondent aux pics d'activité professionnelle.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
-
-            {/* Recent Activity */}
-            <RecentActivity />
           </div>
         </main>
       </div>

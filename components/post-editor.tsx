@@ -1,220 +1,285 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { ArrowLeft, Save, Share, Eye, Calendar } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Save, Calendar, Send, Eye, ImageIcon, Hash, AtSign, Bold, Italic, LinkIcon } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 
 interface PostEditorProps {
-  text: string
-  imageUrl: string
-  platform: string
-  onSave: () => void
-  onBack: () => void
+  text?: string
+  imageUrl?: string
+  platform?: string
+  onSave?: () => void
+  onBack?: () => void
 }
 
-const PLATFORM_CONFIGS = {
-  linkedin: {
-    name: "LinkedIn",
-    color: "bg-blue-600",
-    maxLength: 3000,
-    bgColor: "bg-blue-50",
-    borderColor: "border-blue-200",
-  },
-  twitter: {
-    name: "Twitter/X",
-    color: "bg-black",
-    maxLength: 280,
-    bgColor: "bg-gray-50",
-    borderColor: "border-gray-200",
-  },
-  instagram: {
-    name: "Instagram",
-    color: "bg-pink-600",
-    maxLength: 2200,
-    bgColor: "bg-pink-50",
-    borderColor: "border-pink-200",
-  },
-  facebook: {
-    name: "Facebook",
-    color: "bg-blue-700",
-    maxLength: 63206,
-    bgColor: "bg-blue-50",
-    borderColor: "border-blue-200",
-  },
-}
+export function PostEditor({ text = "", imageUrl = "", platform = "linkedin", onSave, onBack }: PostEditorProps) {
+  const [content, setContent] = useState(text)
+  const [selectedImage, setSelectedImage] = useState(imageUrl)
+  const [hashtags, setHashtags] = useState("#marketing #socialmedia #ai")
+  const { toast } = useToast()
 
-export function PostEditor({ text, imageUrl, platform, onSave, onBack }: PostEditorProps) {
-  const [editedText, setEditedText] = useState(text)
-  const [isPreview, setIsPreview] = useState(false)
-
-  const platformConfig = PLATFORM_CONFIGS[platform as keyof typeof PLATFORM_CONFIGS] || PLATFORM_CONFIGS.linkedin
-  const characterCount = editedText.length
-  const isOverLimit = characterCount > platformConfig.maxLength
-
-  const handleSave = () => {
-    onSave()
+  const platformLimits = {
+    linkedin: 3000,
+    twitter: 280,
+    instagram: 2200,
+    facebook: 63206,
+    tiktok: 150,
   }
 
-  const PostPreview = () => (
-    <Card className={`${platformConfig.bgColor} ${platformConfig.borderColor} border-2`}>
-      <CardHeader className="pb-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-            <span className="text-sm font-medium">U</span>
-          </div>
-          <div>
-            <div className="font-medium text-sm">Votre nom</div>
-            <div className="text-xs text-gray-600">Il y a quelques instants</div>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <div className="space-y-3">
-          <div className="whitespace-pre-wrap text-sm">{editedText}</div>
-          {imageUrl && (
-            <div className="rounded-lg overflow-hidden">
-              <img src={imageUrl || "/placeholder.svg"} alt="Post image" className="w-full aspect-video object-cover" />
-            </div>
-          )}
-          <div className="flex items-center gap-4 pt-2 text-gray-600">
-            <button className="flex items-center gap-1 text-xs hover:text-blue-600">👍 J'aime</button>
-            <button className="flex items-center gap-1 text-xs hover:text-blue-600">💬 Commenter</button>
-            <button className="flex items-center gap-1 text-xs hover:text-blue-600">🔄 Partager</button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
+  const platformNames = {
+    linkedin: "LinkedIn",
+    twitter: "Twitter/X",
+    instagram: "Instagram",
+    facebook: "Facebook",
+    tiktok: "TikTok",
+  }
+
+  const currentLimit = platformLimits[platform as keyof typeof platformLimits] || 3000
+  const platformName = platformNames[platform as keyof typeof platformNames] || "LinkedIn"
+  const characterCount = content.length
+  const isOverLimit = characterCount > currentLimit
+
+  const handleSave = () => {
+    toast({
+      title: "Post sauvegardé",
+      description: "Votre post a été sauvegardé en brouillon",
+    })
+    onSave?.()
+  }
+
+  const handleSchedule = () => {
+    toast({
+      title: "Post programmé",
+      description: "Votre post sera publié selon la planification",
+    })
+  }
+
+  const handlePublish = () => {
+    toast({
+      title: "Post publié",
+      description: `Votre post a été publié sur ${platformName}`,
+    })
+  }
+
+  const formatText = (type: "bold" | "italic" | "link") => {
+    const textarea = document.querySelector("textarea") as HTMLTextAreaElement
+    if (!textarea) return
+
+    const start = textarea.selectionStart
+    const end = textarea.selectionEnd
+    const selectedText = content.substring(start, end)
+
+    let formattedText = selectedText
+    switch (type) {
+      case "bold":
+        formattedText = `**${selectedText}**`
+        break
+      case "italic":
+        formattedText = `*${selectedText}*`
+        break
+      case "link":
+        formattedText = `[${selectedText}](url)`
+        break
+    }
+
+    const newContent = content.substring(0, start) + formattedText + content.substring(end)
+    setContent(newContent)
+  }
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="sm" onClick={onBack}>
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              <div>
-                <CardTitle>Éditeur de post</CardTitle>
-                <CardDescription>Personnalisez votre contenu avant publication</CardDescription>
-              </div>
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Eye className="h-5 w-5" />
+                Éditeur de post
+              </CardTitle>
+              <CardDescription>Personnalisez votre contenu pour {platformName}</CardDescription>
             </div>
-            <Badge variant="secondary" className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${platformConfig.color}`} />
-              {platformConfig.name}
-            </Badge>
+            <Badge variant="outline">{platformName}</Badge>
           </div>
         </CardHeader>
-      </Card>
+        <CardContent>
+          <Tabs defaultValue="content" className="space-y-4">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="content">Contenu</TabsTrigger>
+              <TabsTrigger value="media">Média</TabsTrigger>
+              <TabsTrigger value="preview">Aperçu</TabsTrigger>
+            </TabsList>
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        {/* Editor */}
-        <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Édition du texte</CardTitle>
-                <Button variant="outline" size="sm" onClick={() => setIsPreview(!isPreview)}>
-                  <Eye className="h-4 w-4 mr-2" />
-                  {isPreview ? "Éditer" : "Aperçu"}
+            <TabsContent value="content" className="space-y-4">
+              {/* Formatting Toolbar */}
+              <div className="flex items-center gap-2 p-2 border rounded-lg bg-muted/50">
+                <Button variant="ghost" size="sm" onClick={() => formatText("bold")}>
+                  <Bold className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => formatText("italic")}>
+                  <Italic className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => formatText("link")}>
+                  <LinkIcon className="h-4 w-4" />
+                </Button>
+                <Separator orientation="vertical" className="h-6" />
+                <Button variant="ghost" size="sm">
+                  <Hash className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="sm">
+                  <AtSign className="h-4 w-4" />
                 </Button>
               </div>
-            </CardHeader>
-            <CardContent>
-              {isPreview ? (
-                <div className="bg-gray-50 p-4 rounded-lg whitespace-pre-wrap min-h-[200px]">{editedText}</div>
-              ) : (
-                <div className="space-y-3">
-                  <Textarea
-                    value={editedText}
-                    onChange={(e) => setEditedText(e.target.value)}
-                    rows={10}
-                    className="resize-none"
-                    placeholder="Rédigez votre post..."
-                  />
-                  <div className="flex justify-between items-center text-sm">
-                    <span className={`${isOverLimit ? "text-red-600" : "text-gray-600"}`}>
-                      {characterCount} / {platformConfig.maxLength} caractères
+
+              {/* Content Editor */}
+              <div className="space-y-2">
+                <Textarea
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Rédigez votre post ici..."
+                  rows={12}
+                  className="resize-none"
+                />
+                <div className="flex items-center justify-between text-sm">
+                  <span className={`${isOverLimit ? "text-red-500" : "text-muted-foreground"}`}>
+                    {characterCount} / {currentLimit} caractères
+                  </span>
+                  {isOverLimit && (
+                    <span className="text-red-500 text-xs">
+                      Dépassement de {characterCount - currentLimit} caractères
                     </span>
-                    {isOverLimit && (
-                      <span className="text-red-600 font-medium">
-                        Limite dépassée de {characterCount - platformConfig.maxLength} caractères
-                      </span>
-                    )}
+                  )}
+                </div>
+              </div>
+
+              {/* Hashtags */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Hashtags suggérés</label>
+                <Textarea
+                  value={hashtags}
+                  onChange={(e) => setHashtags(e.target.value)}
+                  placeholder="#hashtag1 #hashtag2 #hashtag3"
+                  rows={2}
+                  className="resize-none"
+                />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="media" className="space-y-4">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-medium mb-3">Image actuelle</h3>
+                  {selectedImage ? (
+                    <div className="relative">
+                      <img
+                        src={selectedImage || "/placeholder.svg"}
+                        alt="Post image"
+                        className="w-full max-w-md rounded-lg border"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-2 bg-transparent"
+                        onClick={() => setSelectedImage("")}
+                      >
+                        Supprimer l'image
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
+                      <ImageIcon className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+                      <p className="text-muted-foreground mb-4">Aucune image sélectionnée</p>
+                      <Button variant="outline">
+                        <ImageIcon className="h-4 w-4 mr-2" />
+                        Ajouter une image
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h3 className="font-medium mb-3">Images suggérées</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {[1, 2, 3, 4, 5, 6].map((i) => (
+                      <div
+                        key={i}
+                        className="relative cursor-pointer rounded-lg border-2 border-transparent hover:border-primary transition-colors"
+                        onClick={() => setSelectedImage(`/placeholder.svg?height=200&width=300&text=Image${i}`)}
+                      >
+                        <img
+                          src={`/placeholder.svg?height=200&width=300&text=Image${i}` || "/placeholder.svg"}
+                          alt={`Suggestion ${i}`}
+                          className="w-full h-24 object-cover rounded-md"
+                        />
+                      </div>
+                    ))}
                   </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Image */}
-          {imageUrl && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Image sélectionnée</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="rounded-lg overflow-hidden">
-                  <img
-                    src={imageUrl || "/placeholder.svg"}
-                    alt="Selected image"
-                    className="w-full aspect-video object-cover"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* Preview */}
-        <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Aperçu {platformConfig.name}</CardTitle>
-              <CardDescription>Voici comment votre post apparaîtra sur {platformConfig.name}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <PostPreview />
-            </CardContent>
-          </Card>
-
-          {/* Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button onClick={handleSave} className="w-full" disabled={isOverLimit}>
-                <Save className="h-4 w-4 mr-2" />
-                Sauvegarder le brouillon
-              </Button>
-
-              <Button variant="outline" className="w-full bg-transparent" disabled={isOverLimit}>
-                <Share className="h-4 w-4 mr-2" />
-                Publier maintenant
-              </Button>
-
-              <Button variant="outline" className="w-full bg-transparent" disabled={isOverLimit}>
-                <Calendar className="h-4 w-4 mr-2" />
-                Programmer la publication
-              </Button>
-
-              <Separator />
-
-              <div className="text-xs text-gray-600 space-y-1">
-                <p>• La publication directe sera disponible prochainement</p>
-                <p>• La programmation nécessite une connexion aux APIs</p>
-                <p>• Vos brouillons sont sauvegardés automatiquement</p>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+            </TabsContent>
+
+            <TabsContent value="preview" className="space-y-4">
+              <div className="border rounded-lg p-6 bg-muted/30">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <span className="text-sm font-medium">JD</span>
+                    </div>
+                    <div>
+                      <div className="font-medium">John Doe</div>
+                      <div className="text-sm text-muted-foreground">{platformName} • Maintenant</div>
+                    </div>
+                  </div>
+
+                  {selectedImage && (
+                    <img
+                      src={selectedImage || "/placeholder.svg"}
+                      alt="Post preview"
+                      className="w-full rounded-lg border"
+                    />
+                  )}
+
+                  <div className="space-y-2">
+                    <p className="whitespace-pre-wrap leading-relaxed">
+                      {content || "Votre contenu apparaîtra ici..."}
+                    </p>
+                    {hashtags && <p className="text-primary text-sm">{hashtags}</p>}
+                  </div>
+
+                  <div className="flex items-center gap-6 pt-2 text-sm text-muted-foreground">
+                    <span>👍 12 J'aime</span>
+                    <span>💬 3 Commentaires</span>
+                    <span>🔄 2 Partages</span>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t">
+            <Button onClick={handleSave} variant="outline" className="flex-1 bg-transparent">
+              <Save className="h-4 w-4 mr-2" />
+              Sauvegarder
+            </Button>
+            <Button onClick={handleSchedule} variant="outline" className="flex-1 bg-transparent">
+              <Calendar className="h-4 w-4 mr-2" />
+              Programmer
+            </Button>
+            <Button onClick={handlePublish} className="flex-1" disabled={isOverLimit}>
+              <Send className="h-4 w-4 mr-2" />
+              Publier maintenant
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

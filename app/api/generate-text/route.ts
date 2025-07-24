@@ -2,25 +2,12 @@ import { type NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {
   try {
-    const { prompt, platform, objective, tone = "professional" } = await request.json()
+    const { platform, objective, customPrompt } = await request.json()
 
-    if (!prompt) {
-      return NextResponse.json({ error: "Prompt is required" }, { status: 400 })
-    }
-
-    // For demo purposes, return mock generated content
-    // In production, you would integrate with OpenAI GPT-4 or similar
-    const platformLimits = {
-      linkedin: 3000,
-      twitter: 280,
-      instagram: 2200,
-      facebook: 63206,
-      tiktok: 150,
-    }
-
-    const sampleContent = {
-      "Attirer des freelances": {
-        linkedin: `🚀 Freelances talentueux, cette opportunité est pour vous !
+    // Simulate AI text generation with realistic content
+    const templates = {
+      linkedin: {
+        "Attirer des freelances": `🚀 Freelances talentueux, cette opportunité est pour vous !
 
 Nous recherchons des experts passionnés pour rejoindre notre équipe projet. Si vous excellez dans votre domaine et cherchez des missions stimulantes, parlons-en !
 
@@ -32,33 +19,9 @@ Nous recherchons des experts passionnés pour rejoindre notre équipe projet. Si
 
 Prêt(e) à relever le défi ? Contactez-nous en MP !
 
-#Freelance #Opportunité #Recrutement`,
-        twitter: `🚀 Freelances talentueux recherchés !
+#Freelance #Opportunité #Recrutement #TalentAcquisition`,
 
-✅ Projets innovants
-✅ Rémunération attractive  
-✅ Flexibilité totale
-✅ Équipe bienveillante
-
-Prêt(e) ? MP ouvert ! 
-
-#Freelance #Opportunité`,
-        instagram: `🚀 Appel aux freelances talentueux !
-
-Rejoignez notre équipe pour des projets passionnants 💼
-
-Ce qu'on offre :
-✨ Projets variés et stimulants
-✨ Rémunération compétitive
-✨ Flexibilité maximale
-✨ Ambiance de travail top
-
-Vous êtes partant(e) ? Contactez-nous ! 📩
-
-#Freelance #Opportunité #Équipe #Travail #Passion`,
-      },
-      "Post du lundi motivant": {
-        linkedin: `💪 Nouveau lundi, nouvelles possibilités !
+        "Post du lundi motivant": `💪 Nouveau lundi, nouvelles possibilités !
 
 Cette semaine, fixez-vous un objectif qui vous fait vibrer. Peu importe sa taille, l'important c'est de commencer.
 
@@ -71,71 +34,134 @@ Alors, quel sera votre premier pas aujourd'hui ?
 
 Partagez vos objectifs de la semaine en commentaire ! 👇
 
-#Motivation #Lundi #Objectifs #Réussite`,
-        twitter: `💪 Nouveau lundi, nouvelles possibilités !
+#Motivation #Lundi #Objectifs #Réussite #Mindset`,
 
-Cette semaine, quel objectif vous fait vibrer ?
+        "Présenter un nouveau produit": `🎉 Grande nouvelle ! Notre dernier produit est enfin là !
 
-✨ Rappel :
-• Chaque expert a été débutant
-• Chaque succès commence par un pas
-• Chaque rêve mérite sa chance
+Après des mois de développement, nous sommes fiers de vous présenter une solution qui va révolutionner votre quotidien professionnel.
 
-Votre premier pas aujourd'hui ? 👇
+🌟 Les points forts :
+• Interface intuitive et moderne
+• Performance optimisée
+• Sécurité renforcée
+• Support client 24/7
+• Intégrations natives
 
-#MondayMotivation`,
-        instagram: `💪 LUNDI = NOUVEAU DÉPART 💪
+Découvrez dès maintenant comment il peut transformer votre façon de travailler.
 
-Cette semaine, on se fixe un objectif qui nous fait vibrer ! 🎯
+Lien en commentaire pour en savoir plus ! 👇
 
-✨ Petits rappels motivants :
-• Tous les experts ont été débutants
-• Chaque succès commence par un premier pas
-• Tous les rêves méritent leur chance
+#Innovation #NouveauProduit #Technologie #Productivité`,
+      },
+      twitter: {
+        "Attirer des freelances": `🔥 Freelances recherchés !
 
-Alors, c'est quoi votre premier pas aujourd'hui ? 👇
+Vous êtes expert dans votre domaine ? Rejoignez notre équipe pour des missions passionnantes.
 
-Partagez en commentaire, on se motive ensemble ! 🔥
+✅ Projets variés
+✅ Rémunération attractive  
+✅ Flexibilité totale
 
-#Motivation #Lundi #Objectifs #Réussite #Mindset #Inspiration`,
+DM ouvert ! 
+
+#Freelance #Opportunité #Remote`,
+
+        "Post du lundi motivant": `💪 Nouveau lundi, nouvelles opportunités !
+
+Cette semaine, fixez-vous UN objectif qui vous fait vibrer.
+
+Rappel : Chaque expert a été un débutant.
+
+Quel sera votre premier pas aujourd'hui ? 👇
+
+#MondayMotivation #Objectifs #Mindset`,
+
+        "Présenter un nouveau produit": `🚀 Lancement produit !
+
+Après des mois de dev, notre nouvelle solution est là !
+
+✨ Interface intuitive
+⚡ Performance optimisée
+🔒 Sécurité renforcée
+
+Découvrez-la maintenant 👇
+
+#Innovation #Tech #Startup`,
+      },
+      instagram: {
+        "Attirer des freelances": `🌟 FREELANCES TALENTUEUX 🌟
+
+On recherche des experts passionnés pour rejoindre notre aventure !
+
+💼 Ce qu'on offre :
+• Projets créatifs
+• Rémunération top
+• Liberté totale
+• Team bienveillante
+
+Prêt(e) pour le défi ? 
+Glisse en DM ! ✨
+
+#Freelance #Opportunité #DreamTeam #CreativeJobs #Remote`,
+
+        "Post du lundi motivant": `💪 LUNDI MOTIVATION 💪
+
+Nouvelle semaine = nouvelles possibilités !
+
+Cette semaine, fixe-toi UN objectif qui te fait vibrer ✨
+
+💭 Remember :
+Chaque expert a été débutant
+Chaque succès commence par un pas
+Chaque rêve mérite sa chance
+
+Ton premier pas aujourd'hui ? 👇
+
+#MondayMotivation #Objectifs #Mindset #Réussite #Inspiration`,
+
+        "Présenter un nouveau produit": `🎉 GRANDE NOUVELLE ! 🎉
+
+Notre nouveau produit est ENFIN là ! 
+
+Après des mois de passion et de développement, on est fiers de vous présenter cette pépite ✨
+
+🌟 Pourquoi vous allez l'adorer :
+• Design moderne et intuitif
+• Performance de folie
+• Sécurité au top
+• Support 24/7
+
+Swipe pour découvrir ! 👉
+
+#NouveauProduit #Innovation #Launch #Excited`,
       },
     }
 
-    // Get content based on objective and platform
-    let generatedText = ""
-    if (objective && sampleContent[objective as keyof typeof sampleContent]) {
-      const objectiveContent = sampleContent[objective as keyof typeof sampleContent]
-      generatedText =
-        objectiveContent[platform as keyof typeof objectiveContent] ||
-        objectiveContent.linkedin ||
-        `Contenu généré pour ${objective} sur ${platform}`
-    } else {
-      // Fallback generic content
-      generatedText = `Contenu généré pour "${prompt}" optimisé pour ${platform}.
+    // Get template based on platform and objective
+    const platformTemplates = templates[platform as keyof typeof templates] || templates.linkedin
+    let generatedText = platformTemplates[objective as keyof typeof platformTemplates]
 
-Ce post a été créé automatiquement en tenant compte des meilleures pratiques de ${platform} et de votre objectif : ${objective || "engagement général"}.
+    // If no template found or custom prompt provided, generate generic content
+    if (!generatedText || customPrompt) {
+      const prompt = customPrompt || objective
+      generatedText = `Contenu généré pour ${platform} sur le thème : ${prompt}
 
-#IA #ContenuAutomatisé #${platform.charAt(0).toUpperCase() + platform.slice(1)}`
+Voici un exemple de post optimisé pour cette plateforme avec un ton professionnel et engageant.
+
+#${platform} #contenu #marketing`
     }
 
-    // Trim content if it exceeds platform limits
-    const limit = platformLimits[platform as keyof typeof platformLimits] || 3000
-    if (generatedText.length > limit) {
-      generatedText = generatedText.substring(0, limit - 3) + "..."
-    }
-
-    // Simulate API delay
+    // Simulate processing delay
     await new Promise((resolve) => setTimeout(resolve, 1500))
 
     return NextResponse.json({
+      success: true,
       text: generatedText,
       platform,
-      objective,
-      characterCount: generatedText.length,
-      maxCharacters: limit,
+      objective: objective || customPrompt,
     })
   } catch (error) {
     console.error("Error generating text:", error)
-    return NextResponse.json({ error: "Failed to generate text" }, { status: 500 })
+    return NextResponse.json({ success: false, error: "Failed to generate text" }, { status: 500 })
   }
 }

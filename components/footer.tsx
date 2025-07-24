@@ -1,82 +1,74 @@
 import Link from "next/link"
-import { Sparkles, Twitter, Linkedin, Instagram, Facebook } from "lucide-react"
+import { Sparkles, Twitter, Linkedin, Github, Mail } from "lucide-react"
 
 export function Footer() {
-  const currentYear = new Date().getFullYear()
-
   const footerLinks = {
     product: [
-      { name: "Fonctionnalités", href: "/features" },
-      { name: "Tarifs", href: "/pricing" },
-      { name: "API", href: "/api" },
-      { name: "Intégrations", href: "/integrations" },
+      { name: "Fonctionnalités", href: "#features" },
+      { name: "Tarifs", href: "#pricing" },
+      { name: "API", href: "#api" },
+      { name: "Intégrations", href: "#integrations" },
     ],
     company: [
-      { name: "À propos", href: "/about" },
-      { name: "Blog", href: "/blog" },
-      { name: "Carrières", href: "/careers" },
-      { name: "Contact", href: "/contact" },
-    ],
-    resources: [
-      { name: "Documentation", href: "/docs" },
-      { name: "Guides", href: "/guides" },
-      { name: "Support", href: "/support" },
-      { name: "Statut", href: "/status" },
+      { name: "À propos", href: "#about" },
+      { name: "Blog", href: "#blog" },
+      { name: "Carrières", href: "#careers" },
+      { name: "Contact", href: "#contact" },
     ],
     legal: [
-      { name: "Confidentialité", href: "/privacy" },
-      { name: "Conditions", href: "/terms" },
-      { name: "Cookies", href: "/cookies" },
-      { name: "RGPD", href: "/gdpr" },
+      { name: "Confidentialité", href: "#privacy" },
+      { name: "Conditions", href: "#terms" },
+      { name: "Cookies", href: "#cookies" },
+      { name: "RGPD", href: "#gdpr" },
     ],
   }
 
   const socialLinks = [
-    { name: "Twitter", href: "https://twitter.com", icon: Twitter },
-    { name: "LinkedIn", href: "https://linkedin.com", icon: Linkedin },
-    { name: "Instagram", href: "https://instagram.com", icon: Instagram },
-    { name: "Facebook", href: "https://facebook.com", icon: Facebook },
+    { name: "Twitter", href: "#", icon: Twitter },
+    { name: "LinkedIn", href: "#", icon: Linkedin },
+    { name: "GitHub", href: "#", icon: Github },
+    { name: "Email", href: "mailto:contact@socialgen.com", icon: Mail },
   ]
 
   return (
     <footer className="border-t bg-background">
       <div className="container py-12 md:py-16">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-6">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
           {/* Brand */}
-          <div className="col-span-2 md:col-span-2">
+          <div className="space-y-4">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <Sparkles className="h-4 w-4 text-primary-foreground" />
-              </div>
-              <span className="font-bold">SocialGen AI</span>
+              <Sparkles className="h-8 w-8 text-primary" />
+              <span className="text-2xl font-bold">SocialGen</span>
             </Link>
-            <p className="mt-4 text-sm text-muted-foreground">
-              Créez du contenu engageant pour vos réseaux sociaux en quelques clics grâce à l'intelligence artificielle.
+            <p className="text-sm text-muted-foreground max-w-xs">
+              Générez automatiquement du contenu optimisé pour tous vos réseaux sociaux avec l'intelligence
+              artificielle.
             </p>
-            <div className="mt-6 flex space-x-4">
-              {socialLinks.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="text-muted-foreground hover:text-primary"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span className="sr-only">{item.name}</span>
-                  <item.icon className="h-5 w-5" />
-                </Link>
-              ))}
+            <div className="flex space-x-4">
+              {socialLinks.map((social) => {
+                const Icon = social.icon
+                return (
+                  <Link
+                    key={social.name}
+                    href={social.href}
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span className="sr-only">{social.name}</span>
+                  </Link>
+                )
+              })}
             </div>
           </div>
 
           {/* Product */}
-          <div>
+          <div className="space-y-4">
             <h3 className="text-sm font-semibold">Produit</h3>
-            <ul className="mt-4 space-y-3">
-              {footerLinks.product.map((item) => (
-                <li key={item.name}>
-                  <Link href={item.href} className="text-sm text-muted-foreground hover:text-primary">
-                    {item.name}
+            <ul className="space-y-2">
+              {footerLinks.product.map((link) => (
+                <li key={link.name}>
+                  <Link href={link.href} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    {link.name}
                   </Link>
                 </li>
               ))}
@@ -84,27 +76,13 @@ export function Footer() {
           </div>
 
           {/* Company */}
-          <div>
+          <div className="space-y-4">
             <h3 className="text-sm font-semibold">Entreprise</h3>
-            <ul className="mt-4 space-y-3">
-              {footerLinks.company.map((item) => (
-                <li key={item.name}>
-                  <Link href={item.href} className="text-sm text-muted-foreground hover:text-primary">
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Resources */}
-          <div>
-            <h3 className="text-sm font-semibold">Ressources</h3>
-            <ul className="mt-4 space-y-3">
-              {footerLinks.resources.map((item) => (
-                <li key={item.name}>
-                  <Link href={item.href} className="text-sm text-muted-foreground hover:text-primary">
-                    {item.name}
+            <ul className="space-y-2">
+              {footerLinks.company.map((link) => (
+                <li key={link.name}>
+                  <Link href={link.href} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    {link.name}
                   </Link>
                 </li>
               ))}
@@ -112,13 +90,13 @@ export function Footer() {
           </div>
 
           {/* Legal */}
-          <div>
+          <div className="space-y-4">
             <h3 className="text-sm font-semibold">Légal</h3>
-            <ul className="mt-4 space-y-3">
-              {footerLinks.legal.map((item) => (
-                <li key={item.name}>
-                  <Link href={item.href} className="text-sm text-muted-foreground hover:text-primary">
-                    {item.name}
+            <ul className="space-y-2">
+              {footerLinks.legal.map((link) => (
+                <li key={link.name}>
+                  <Link href={link.href} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    {link.name}
                   </Link>
                 </li>
               ))}
@@ -126,11 +104,9 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 border-t pt-8">
-          <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
-            <p className="text-sm text-muted-foreground">© {currentYear} SocialGen AI. Tous droits réservés.</p>
-            <p className="text-sm text-muted-foreground">Fait avec ❤️ pour les créateurs de contenu</p>
-          </div>
+        <div className="mt-8 border-t pt-8 flex flex-col sm:flex-row justify-between items-center">
+          <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} SocialGen. Tous droits réservés.</p>
+          <p className="text-sm text-muted-foreground mt-2 sm:mt-0">Fait avec ❤️ en France</p>
         </div>
       </div>
     </footer>
