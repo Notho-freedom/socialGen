@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
@@ -59,6 +59,8 @@ export function PostGenerator({ userId }: PostGeneratorProps) {
   const [copied, setCopied] = useState(false)
   const { toast } = useToast()
 
+  const selectedPlatform = useMemo(() => PLATFORMS.find(p => p.value === platform), [platform])
+  
   const handleGenerateText = async () => {
     if (!objective && !customPrompt) {
       toast({
@@ -138,13 +140,21 @@ export function PostGenerator({ userId }: PostGeneratorProps) {
   }
 
   const handleCopyText = async () => {
-    await navigator.clipboard.writeText(generatedText)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-    toast({
-      title: "Copié !",
-      description: "Le texte a été copié dans le presse-papiers.",
-    })
+    try {
+      await navigator.clipboard.writeText(generatedText)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+      toast({
+        title: "Copié !",
+        description: "Le texte a été copié dans le presse-papiers.",
+      })
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "La copie dans le presse-papiers n'est pas supportée dans ce navigateur.",
+        variant: "destructive",
+      })
+    }
   }
 
   const handleSavePost = async () => {
@@ -186,6 +196,12 @@ export function PostGenerator({ userId }: PostGeneratorProps) {
     }
   }
 
+  const handlePlatformChange = useCallback((value: string) => {
+    if (value !== platform) {
+      setPlatform(value)
+    }
+  }, [platform])
+
   if (step === 3) {
     return (
       <PostEditor
@@ -215,22 +231,22 @@ export function PostGenerator({ userId }: PostGeneratorProps) {
           <CardContent className="space-y-6">
             {/* Platform Selection */}
             <div className="space-y-3">
-              <Label>Plateforme cible</Label>
-              <Select value={platform} onValueChange={setPlatform}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez une plateforme" />
-                </SelectTrigger>
-                <SelectContent>
-                  {PLATFORMS.map((p) => (
-                    <SelectItem key={p.value} value={p.value}>
-                      <div className="flex items-center gap-2">
-                        <div className={`w-3 h-3 rounded-full ${p.color}`} />
-                        {p.label}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="platform-select">Plateforme cible</Label>
+              <select
+                id="platform-select"
+                name="platform"
+                aria-label="Sélectionner une plateforme"
+                className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                value={platform}
+                onChange={(e) => setPlatform(e.target.value)}
+              >
+                <option value="">Sélectionnez une plateforme</option>
+                {PLATFORMS.map((p) => (
+                  <option key={p.value} value={p.value}>
+                    {p.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <Separator />
