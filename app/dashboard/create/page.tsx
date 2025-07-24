@@ -1,6 +1,6 @@
 import { Header } from "@/components/header"
 import { Sidebar } from "@/components/sidebar"
-import { ComprehensivePostCreator } from "@/components/comprehensive-post-creator"
+import { ModularPostCreator } from "@/components/modular-post-creator"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Lightbulb, TrendingUp, Clock, Users } from "lucide-react"
@@ -47,7 +47,7 @@ export default function CreatePostPage() {
             <div className="grid gap-8 lg:grid-cols-4">
               {/* Main Content */}
               <div className="lg:col-span-3">
-                <ComprehensivePostCreator />
+                <ModularPostCreator />
               </div>
 
               {/* Sidebar Tips */}
