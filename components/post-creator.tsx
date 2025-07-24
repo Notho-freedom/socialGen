@@ -1,19 +1,22 @@
 "use client"
-import { useState } from "react"
+import { useState, ChangeEvent } from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Loader2, Sparkles, RefreshCw } from "lucide-react"
+import { Loader2, Sparkles, Image as ImageIcon } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { SocialPreviewCard } from "@/components/social-preview-card"
 
 const PLATFORMS = [
-  { value: "linkedin", label: "LinkedIn", color: "bg-blue-600", icon: "/public/placeholder-logo.svg", limit: 3000 },
-  { value: "twitter", label: "Twitter/X", color: "bg-black", icon: "/public/placeholder-logo.svg", limit: 280 },
-  { value: "instagram", label: "Instagram", color: "bg-pink-600", icon: "/public/placeholder-logo.svg", limit: 2200 },
-  { value: "facebook", label: "Facebook", color: "bg-blue-700", icon: "/public/placeholder-logo.svg", limit: 63206 },
-]
+  { value: "linkedin", label: "LinkedIn", limit: 3000 },
+  { value: "twitter", label: "Twitter/X", limit: 280 },
+  { value: "instagram", label: "Instagram", limit: 2200 },
+  { value: "facebook", label: "Facebook", limit: 63206 },
+] as const
+
+type Platform = typeof PLATFORMS[number]["value"]
 
 const OBJECTIVES = [
   "Attirer des freelances",
@@ -22,14 +25,22 @@ const OBJECTIVES = [
   "Partager une réussite client",
   "Conseils professionnels",
   "Tendances du secteur",
-]
+] as const
+
+const SOCIAL_PREVIEW_USERS: Record<Platform, { name: string; avatar: string; job?: string }> = {
+  linkedin: { name: "Jean Dupont", avatar: "/public/placeholder-user.jpg", job: "Consultant Marketing" },
+  twitter: { name: "@jean_dupont", avatar: "/public/placeholder-user.jpg" },
+  facebook: { name: "Jean Dupont", avatar: "/public/placeholder-user.jpg" },
+  instagram: { name: "jean.dupont", avatar: "/public/placeholder-user.jpg" },
+}
 
 export function PostCreator() {
-  const [platform, setPlatform] = useState(PLATFORMS[0].value)
-  const [objective, setObjective] = useState(OBJECTIVES[0])
+  const [platform, setPlatform] = useState<Platform>("linkedin")
+  const [objective, setObjective] = useState<typeof OBJECTIVES[number]>(OBJECTIVES[0])
   const [customPrompt, setCustomPrompt] = useState("")
   const [generatedText, setGeneratedText] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
+  const [imageUrl, setImageUrl] = useState<string>("")
   const { toast } = useToast()
 
   const handleGenerate = async () => {
@@ -70,22 +81,15 @@ export function PostCreator() {
     }
   }
 
-  // Aperçu live pour chaque réseau
-  function SocialPreview({ platformKey, text }: { platformKey: string; text: string }) {
-    const platformObj = PLATFORMS.find((p) => p.value === platformKey)
-    if (!platformObj) return null
-    return (
-      <div className={`rounded-xl shadow-md p-4 mb-4 bg-white dark:bg-zinc-900 border ${platformObj.color} animate-fade-in-up`}
-        style={{ minHeight: 120 }}>
-        <div className="flex items-center gap-2 mb-2">
-          <img src={platformObj.icon} alt={platformObj.label} className="h-6 w-6 rounded" />
-          <span className="font-semibold text-base">{platformObj.label}</span>
-        </div>
-        <div className="text-sm whitespace-pre-line break-words text-zinc-800 dark:text-zinc-100">
-          {text || <span className="text-zinc-400">Votre texte apparaîtra ici en temps réel...</span>}
-        </div>
-      </div>
-    )
+  // Gestion de l'upload d'image
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      setImageUrl(ev.target?.result as string)
+    }
+    reader.readAsDataURL(file)
   }
 
   return (
@@ -102,7 +106,7 @@ export function PostCreator() {
           <CardContent className="space-y-4">
             <div className="space-y-2 animate-fade-in delay-100">
               <label className="text-sm font-medium">Plateforme cible</label>
-              <Select value={platform} onValueChange={setPlatform}>
+              <Select value={platform} onValueChange={v => setPlatform(v as Platform)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Choisissez une plateforme" />
                 </SelectTrigger>
@@ -137,6 +141,23 @@ export function PostCreator() {
                 className="transition-all duration-200 focus:shadow-lg"
               />
             </div>
+            <div className="flex items-center gap-2 animate-fade-in delay-300">
+              <input
+                type="file"
+                accept="image/*"
+                id="image-upload"
+                className="hidden"
+                onChange={handleImageChange}
+              />
+              <label htmlFor="image-upload">
+                <Button type="button" variant="outline" className="gap-2">
+                  <ImageIcon className="h-4 w-4" /> Ajouter une image
+                </Button>
+              </label>
+              {imageUrl && (
+                <img src={imageUrl} alt="Aperçu" className="h-10 w-10 rounded object-cover border" />
+              )}
+            </div>
             <Button onClick={handleGenerate} disabled={isGenerating} className="w-full animate-fade-in-up delay-300 transition-transform duration-200 hover:scale-105">
               {isGenerating ? (
                 <>
@@ -154,11 +175,14 @@ export function PostCreator() {
         </Card>
       </div>
       {/* Aperçu live */}
-      <div className="space-y-4">
+      <div className="space-y-4 flex flex-col items-center">
         <h3 className="text-lg font-semibold mb-2">Aperçu en temps réel</h3>
-        {PLATFORMS.map((p) => (
-          <SocialPreview key={p.value} platformKey={p.value} text={platform === p.value ? generatedText : ""} />
-        ))}
+        <SocialPreviewCard
+          platform={platform}
+          text={generatedText}
+          user={SOCIAL_PREVIEW_USERS[platform]}
+          imageUrl={imageUrl}
+        />
       </div>
     </div>
   )
