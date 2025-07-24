@@ -1,5 +1,3 @@
-"use client"
-
 import { Sidebar } from "@/components/sidebar"
 import { ModularPostCreator } from "@/components/modular-post-creator"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -31,9 +29,8 @@ export default function CreatePostPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <DemoBanner />
-
       <div className="flex">
         <Sidebar />
 
@@ -42,18 +39,20 @@ export default function CreatePostPage() {
             {/* Header */}
             <FadeIn>
               <div className="text-center space-y-4 mb-12">
-                <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
                   Créateur de Posts IA
                 </h1>
-                <p className="text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto">
-                  Créez du contenu optimisé pour toutes vos plateformes sociales avec l'intelligence artificielle.
-                  Interface modulaire et intuitive pour des résultats professionnels.
+                <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                  Créez du contenu social media optimisé avec l'intelligence artificielle. Interface modulaire, aperçus
+                  en temps réel, et publication multi-plateformes.
                 </p>
               </div>
             </FadeIn>
 
-            {/* Main Creator */}
-            <ModularPostCreator />
+            {/* Main Content - Full Width */}
+            <div className="container mx-auto px-4 py-8">
+              <ModularPostCreator />
+            </div>
 
             {/* Sidebar Tips - Reduced space */}
             <div className="grid gap-8 lg:grid-cols-5">

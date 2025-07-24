@@ -41,7 +41,7 @@ export function PlatformSelector({ selectedPlatforms, onPlatformsChange }: Platf
           )}
         </div>
 
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {platforms.map((platform) => {
             const Icon = platform.icon
             const isSelected = selectedPlatforms.includes(platform.id)
@@ -49,21 +49,23 @@ export function PlatformSelector({ selectedPlatforms, onPlatformsChange }: Platf
               <AnimatedButton
                 key={platform.id}
                 variant={isSelected ? "default" : "outline"}
-                className={`flex flex-col items-center justify-center gap-2 h-20 w-full transition-all duration-300 ${
+                className={`flex flex-col items-center gap-3 h-20 transition-all duration-300 ${
                   isSelected ? "scale-105 shadow-lg ring-2 ring-primary/20" : "hover:scale-105 hover:shadow-md"
                 }`}
                 onClick={() => togglePlatform(platform.id)}
-                title={`${platform.name} - ${platform.limit} caractères`}
               >
-                <Icon className="h-6 w-6 transition-transform duration-300" />
-                <span className="text-xs text-muted-foreground">{platform.limit}</span>
+                <Icon className="h-5 w-5 transition-transform duration-300" />
+                <div className="text-center">
+                  <div className="text-sm font-medium">{platform.name}</div>
+                  <div className="text-xs text-muted-foreground">{platform.limit} caractères</div>
+                </div>
               </AnimatedButton>
             )
           })}
         </div>
 
         <p className="text-xs text-muted-foreground">
-          Sélectionnez les plateformes. Le contenu sera optimisé pour chaque plateforme choisie.
+          Sélectionnez une ou plusieurs plateformes. Le contenu sera optimisé pour chaque plateforme choisie.
         </p>
       </div>
     </FadeIn>
