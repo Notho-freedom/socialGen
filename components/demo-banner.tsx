@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { X, Info, ExternalLink } from "lucide-react"
 
 export function DemoBanner() {
@@ -12,35 +11,26 @@ export function DemoBanner() {
   if (!isVisible) return null
 
   return (
-    <Alert className="border-blue-200 bg-blue-50 text-blue-900 mb-6">
-      <Info className="h-4 w-4" />
+    <Alert className="rounded-none border-x-0 border-t-0 bg-blue-50 border-blue-200">
+      <Info className="h-4 w-4 text-blue-600" />
       <AlertDescription className="flex items-center justify-between w-full">
-        <div className="flex items-center gap-3">
-          <Badge variant="outline" className="border-blue-300 text-blue-700">
-            Mode Démo
-          </Badge>
-          <span className="text-sm">
-            Vous utilisez la version de démonstration. Les données ne sont pas sauvegardées.
-          </span>
-        </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-blue-300 text-blue-700 hover:bg-blue-100 bg-transparent"
-          >
-            <ExternalLink className="h-3 w-3 mr-1" />
-            Version complète
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsVisible(false)}
-            className="text-blue-700 hover:bg-blue-100"
-          >
-            <X className="h-4 w-4" />
+          <span className="text-blue-800">
+            🚀 <strong>Mode Démo</strong> - Vous utilisez la version de démonstration de SocialGen.
+          </span>
+          <Button variant="link" className="h-auto p-0 text-blue-600 hover:text-blue-800">
+            Passer à la version complète
+            <ExternalLink className="ml-1 h-3 w-3" />
           </Button>
         </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsVisible(false)}
+          className="h-auto p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-100"
+        >
+          <X className="h-4 w-4" />
+        </Button>
       </AlertDescription>
     </Alert>
   )

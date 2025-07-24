@@ -1,94 +1,95 @@
 "use client"
 
-import * as React from "react"
-import { Palette, Check } from "lucide-react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Palette, Check } from "lucide-react"
 
 const themes = [
   {
+    id: "light",
     name: "Light",
-    value: "light",
-    color: "bg-white",
     description: "Classique et épuré",
+    color: "bg-white border-2 border-gray-200",
   },
   {
+    id: "blue-pro",
     name: "Blue Pro",
-    value: "blue-pro",
-    color: "bg-gradient-to-r from-blue-500 to-blue-600",
     description: "Professionnel et moderne",
+    color: "bg-blue-600",
   },
   {
+    id: "purple-modern",
     name: "Purple Modern",
-    value: "purple-modern",
-    color: "bg-gradient-to-r from-purple-500 to-purple-600",
     description: "Créatif et élégant",
+    color: "bg-purple-600",
   },
   {
+    id: "green-fresh",
     name: "Green Fresh",
-    value: "green-fresh",
-    color: "bg-gradient-to-r from-emerald-500 to-emerald-600",
     description: "Frais et naturel",
+    color: "bg-emerald-600",
   },
   {
+    id: "orange-creative",
     name: "Orange Creative",
-    value: "orange-creative",
-    color: "bg-gradient-to-r from-orange-500 to-orange-600",
     description: "Énergique et créatif",
+    color: "bg-orange-600",
   },
   {
+    id: "rose-elegant",
     name: "Rose Elegant",
-    value: "rose-elegant",
-    color: "bg-gradient-to-r from-rose-500 to-rose-600",
     description: "Élégant et sophistiqué",
+    color: "bg-rose-600",
   },
 ]
 
 export function ThemeToggle() {
-  const [currentTheme, setCurrentTheme] = React.useState("light")
+  const [currentTheme, setCurrentTheme] = useState("light")
 
-  React.useEffect(() => {
+  useEffect(() => {
     const savedTheme = localStorage.getItem("theme") || "light"
     setCurrentTheme(savedTheme)
     applyTheme(savedTheme)
   }, [])
 
-  const applyTheme = (theme: string) => {
-    document.documentElement.className = theme
-    localStorage.setItem("theme", theme)
+  const applyTheme = (themeId: string) => {
+    const root = document.documentElement
+    root.className = root.className.replace(/theme-\w+/g, "")
+    root.classList.add(`theme-${themeId}`)
   }
 
-  const handleThemeChange = (theme: string) => {
-    setCurrentTheme(theme)
-    applyTheme(theme)
+  const changeTheme = (themeId: string) => {
+    setCurrentTheme(themeId)
+    localStorage.setItem("theme", themeId)
+    applyTheme(themeId)
   }
 
-  const currentThemeData = themes.find((theme) => theme.value === currentTheme)
+  const currentThemeData = themes.find((theme) => theme.id === currentTheme)
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
-          <div className={`w-4 h-4 rounded-full ${currentThemeData?.color || "bg-gray-200"}`} />
-          <Palette className="absolute inset-0 w-4 h-4 opacity-0 hover:opacity-100 transition-opacity" />
+        <Button variant="ghost" size="icon" className="h-9 w-9">
+          <Palette className="h-4 w-4" />
           <span className="sr-only">Changer le thème</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <div className="p-2">
           <p className="text-sm font-medium mb-2">Choisir un thème</p>
-          <div className="grid gap-1">
+          <div className="space-y-1">
             {themes.map((theme) => (
               <DropdownMenuItem
-                key={theme.value}
-                onClick={() => handleThemeChange(theme.value)}
-                className="flex items-center gap-3 p-2 cursor-pointer"
+                key={theme.id}
+                onClick={() => changeTheme(theme.id)}
+                className="flex items-center gap-3 cursor-pointer"
               >
-                <div className={`w-4 h-4 rounded-full ${theme.color} border border-border`} />
+                <div className={`w-4 h-4 rounded-full ${theme.color}`} />
                 <div className="flex-1">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">{theme.name}</span>
-                    {currentTheme === theme.value && <Check className="w-3 h-3 text-primary" />}
+                    {currentTheme === theme.id && <Check className="h-4 w-4" />}
                   </div>
                   <p className="text-xs text-muted-foreground">{theme.description}</p>
                 </div>
