@@ -90,28 +90,26 @@ export function RecentActivity() {
   }
 
   return (
-    <Card>
+    <Card className="animate-fade-in-up">
       <CardHeader>
         <CardTitle>Activité récente</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {activities.map((activity) => (
-            <div key={activity.id} className="flex items-start space-x-3">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className={`text-white text-xs ${getPlatformColor(activity.platform)}`}>
-                  {activity.platform.charAt(0)}
-                </AvatarFallback>
+          {activities.map((activity, i) => (
+            <div key={activity.id} className={`flex items-start space-x-3 animate-fade-in-up delay-${i * 100} transition-transform duration-200 hover:scale-[1.02] hover:shadow-md`}>
+              <Avatar className="h-8 w-8 animate-fade-in">
+                <AvatarFallback className={`text-white text-xs ${getPlatformColor(activity.platform)}`}>{activity.platform.charAt(0)}</AvatarFallback>
               </Avatar>
               <div className="flex-1 space-y-1">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium">{activity.title}</p>
-                  <Badge variant="secondary" className={getStatusColor(activity.status)}>
+                  <p className="text-sm font-medium animate-fade-in delay-100">{activity.title}</p>
+                  <Badge variant="secondary" className={getStatusColor(activity.status) + " animate-fade-in delay-200"}>
                     {getStatusText(activity.status)}
                   </Badge>
                 </div>
-                <p className="text-xs text-muted-foreground">{activity.description}</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground animate-fade-in delay-200">{activity.description}</p>
+                <p className="text-xs text-muted-foreground animate-fade-in delay-300">
                   {formatDistanceToNow(activity.timestamp, { addSuffix: true, locale: fr })}
                 </p>
               </div>

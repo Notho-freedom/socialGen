@@ -1,13 +1,8 @@
 "use client"
 
-<<<<<<< HEAD
-import { useState, useCallback, useMemo } from "react"
-import { Button } from "@/components/ui/button"
-=======
 import { useState } from "react"
->>>>>>> bb6cbcce9060a13eaeadb737c6b731f8e9bb4f8c
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
@@ -25,12 +20,6 @@ export function PostGenerator({ userId }: PostGeneratorProps) {
   const [isGenerating, setIsGenerating] = useState(false)
   const { toast } = useToast()
 
-<<<<<<< HEAD
-  const selectedPlatform = useMemo(() => PLATFORMS.find(p => p.value === platform), [platform])
-  
-  const handleGenerateText = async () => {
-    if (!objective && !customPrompt) {
-=======
   const platforms = [
     { value: "linkedin", label: "LinkedIn", limit: 3000 },
     { value: "twitter", label: "Twitter/X", limit: 280 },
@@ -49,7 +38,6 @@ export function PostGenerator({ userId }: PostGeneratorProps) {
 
   const handleGenerate = async () => {
     if (!objective || !platform) {
->>>>>>> bb6cbcce9060a13eaeadb737c6b731f8e9bb4f8c
       toast({
         title: "Informations manquantes",
         description: "Veuillez sélectionner un objectif et une plateforme",
@@ -140,102 +128,21 @@ Lien en bio pour en savoir plus ! 👆
     handleGenerate()
   }
 
-<<<<<<< HEAD
-  const handleRegenerateText = async () => {
-    await handleGenerateText()
-  }
-
-  const handleCopyText = async () => {
-    try {
-      await navigator.clipboard.writeText(generatedText)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-      toast({
-        title: "Copié !",
-        description: "Le texte a été copié dans le presse-papiers.",
-      })
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "La copie dans le presse-papiers n'est pas supportée dans ce navigateur.",
-        variant: "destructive",
-      })
-    }
-  }
-
-  const handleSavePost = async () => {
-    if (!isSupabaseConfigured()) {
-      toast({
-        title: "Mode démo",
-        description: "En mode démo, les posts ne sont pas sauvegardés. Configurez Supabase pour la sauvegarde.",
-      })
-      return
-    }
-
-    try {
-      const response = await fetch("/api/posts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId,
-          title: objective || "Post personnalisé",
-          prompt: customPrompt || objective,
-          textGenerated: generatedText,
-          imageUrl: selectedImage,
-          platform,
-          status: "draft",
-        }),
-      })
-
-      if (!response.ok) throw new Error("Erreur lors de la sauvegarde")
-
-      toast({
-        title: "Sauvegardé !",
-        description: "Votre post a été sauvegardé dans l'historique.",
-      })
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de sauvegarder le post.",
-        variant: "destructive",
-      })
-    }
-  }
-
-  const handlePlatformChange = useCallback((value: string) => {
-    if (value !== platform) {
-      setPlatform(value)
-    }
-  }, [platform])
-
-  if (step === 3) {
-    return (
-      <PostEditor
-        text={generatedText}
-        imageUrl={selectedImage}
-        platform={platform}
-        onSave={handleSavePost}
-        onBack={() => setStep(2)}
-      />
-    )
-  }
-=======
   const selectedPlatform = platforms.find((p) => p.value === platform)
->>>>>>> bb6cbcce9060a13eaeadb737c6b731f8e9bb4f8c
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="animate-fade-in-up">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5" />
+            <Sparkles className="h-5 w-5 animate-bounce" />
             Générateur de posts
           </CardTitle>
           <CardDescription>Créez du contenu optimisé pour vos réseaux sociaux en quelques clics</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Platform Selection */}
-          <div className="space-y-2">
+          <div className="space-y-2 animate-fade-in delay-100">
             <label className="text-sm font-medium">Plateforme cible</label>
             <Select value={platform} onValueChange={setPlatform}>
               <SelectTrigger>
@@ -243,7 +150,7 @@ Lien en bio pour en savoir plus ! 👆
               </SelectTrigger>
               <SelectContent>
                 {platforms.map((p) => (
-                  <SelectItem key={p.value} value={p.value}>
+                  <SelectItem key={p.value} value={p.value} className="transition-all duration-200 hover:scale-105">
                     {p.label} ({p.limit} caractères max)
                   </SelectItem>
                 ))}
@@ -252,14 +159,14 @@ Lien en bio pour en savoir plus ! 👆
           </div>
 
           {/* Objective Selection */}
-          <div className="space-y-2">
+          <div className="space-y-2 animate-fade-in delay-200">
             <label className="text-sm font-medium">Objectif de publication</label>
             <div className="flex flex-wrap gap-2 mb-2">
               {objectives.map((obj) => (
                 <Badge
                   key={obj}
                   variant={objective === obj ? "default" : "outline"}
-                  className="cursor-pointer"
+                  className="cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-md"
                   onClick={() => setObjective(obj)}
                 >
                   {obj}
@@ -271,10 +178,11 @@ Lien en bio pour en savoir plus ! 👆
               value={objective}
               onChange={(e) => setObjective(e.target.value)}
               rows={2}
+              className="transition-all duration-200 focus:shadow-lg"
             />
           </div>
 
-          <Button onClick={handleGenerate} disabled={isGenerating} className="w-full">
+          <Button onClick={handleGenerate} disabled={isGenerating} className="w-full animate-fade-in-up delay-300 transition-transform duration-200 hover:scale-105">
             {isGenerating ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -282,7 +190,7 @@ Lien en bio pour en savoir plus ! 👆
               </>
             ) : (
               <>
-                <Sparkles className="mr-2 h-4 w-4" />
+                <Sparkles className="mr-2 h-4 w-4 animate-bounce" />
                 Générer le contenu
               </>
             )}
@@ -292,132 +200,17 @@ Lien en bio pour en savoir plus ! 👆
 
       {/* Generated Content */}
       {generatedText && (
-        <Card>
+        <Card className="animate-fade-in-up delay-200">
           <CardHeader>
-<<<<<<< HEAD
-            <CardTitle className="flex items-center gap-2">
-              <Wand2 className="h-5 w-5" />
-              Créer un nouveau post
-            </CardTitle>
-            <CardDescription>
-              Définissez l'objectif de votre publication pour générer du contenu optimisé
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Platform Selection */}
-            <div className="space-y-3">
-              <Label htmlFor="platform-select">Plateforme cible</Label>
-              <select
-                id="platform-select"
-                name="platform"
-                aria-label="Sélectionner une plateforme"
-                className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                value={platform}
-                onChange={(e) => setPlatform(e.target.value)}
-              >
-                <option value="">Sélectionnez une plateforme</option>
-                {PLATFORMS.map((p) => (
-                  <option key={p.value} value={p.value}>
-                    {p.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <Separator />
-
-            {/* Objective Selection */}
-            <div className="space-y-3">
-              <Label>Quel est l'objectif de cette publication ?</Label>
-              <div className="grid sm:grid-cols-2 gap-3">
-                {OBJECTIVES.map((obj) => (
-                  <Card
-                    key={obj.value}
-                    className={`cursor-pointer transition-all hover:shadow-md ${
-                      objective === obj.value ? "ring-2 ring-blue-600 bg-blue-50" : ""
-                    }`}
-                    onClick={() => setObjective(obj.value)}
-                  >
-                    <CardContent className="p-4">
-                      <div className="font-medium text-sm">{obj.label}</div>
-                      <div className="text-xs text-gray-600 mt-1">{obj.description}</div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <div className="flex-1 border-t" />
-              <span className="text-sm text-gray-500">OU</span>
-              <div className="flex-1 border-t" />
-            </div>
-
-            {/* Custom Prompt */}
-            <div className="space-y-3">
-              <Label htmlFor="custom-prompt">Prompt personnalisé</Label>
-              <Textarea
-                id="custom-prompt"
-                placeholder="Décrivez précisément le type de contenu que vous souhaitez générer..."
-                value={customPrompt}
-                onChange={(e) => setCustomPrompt(e.target.value)}
-                rows={3}
-              />
-            </div>
-
-            <Button
-              onClick={handleGenerateText}
-              disabled={isGenerating || (!objective && !customPrompt)}
-              className="w-full"
-              size="lg"
-            >
-              {isGenerating ? (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  Génération en cours...
-                </>
-              ) : (
-                <>
-                  <Wand2 className="h-4 w-4 mr-2" />
-                  Générer le post
-                </>
-              )}
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Step 2: Generated Content */}
-      {step === 2 && (
-        <div className="space-y-6">
-          {/* Generated Text */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Texte généré</CardTitle>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={handleCopyText}>
-                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={handleRegenerateText} disabled={isGenerating}>
-                    <RefreshCw className={`h-4 w-4 ${isGenerating ? "animate-spin" : ""}`} />
-                  </Button>
-                </div>
-              </div>
-              {platform && (
-                <Badge variant="secondary" className="w-fit">
-                  {PLATFORMS.find((p) => p.value === platform)?.label}
-=======
             <div className="flex items-center justify-between">
               <CardTitle>Contenu généré</CardTitle>
               <div className="flex items-center gap-2">
-                <Badge variant="outline">
+                <Badge variant="outline" className="transition-all duration-200 animate-fade-in">
                   {generatedText.length}
                   {selectedPlatform && `/${selectedPlatform.limit}`} caractères
->>>>>>> bb6cbcce9060a13eaeadb737c6b731f8e9bb4f8c
                 </Badge>
-                <Button variant="outline" size="sm" onClick={handleRegenerate} disabled={isGenerating}>
-                  <RefreshCw className="h-4 w-4" />
+                <Button variant="outline" size="sm" onClick={handleRegenerate} disabled={isGenerating} className="transition-transform duration-200 hover:scale-110">
+                  <RefreshCw className="h-4 w-4 animate-spin" />
                 </Button>
               </div>
             </div>
@@ -428,11 +221,11 @@ Lien en bio pour en savoir plus ! 👆
                 value={generatedText}
                 onChange={(e) => setGeneratedText(e.target.value)}
                 rows={8}
-                className="resize-none"
+                className="resize-none transition-all duration-200 focus:shadow-lg"
               />
               <div className="flex gap-2">
-                <Button className="flex-1">Sauvegarder</Button>
-                <Button variant="outline" className="flex-1 bg-transparent">
+                <Button className="flex-1 transition-transform duration-200 hover:scale-105">Sauvegarder</Button>
+                <Button variant="outline" className="flex-1 bg-transparent transition-transform duration-200 hover:scale-105">
                   Programmer
                 </Button>
               </div>
