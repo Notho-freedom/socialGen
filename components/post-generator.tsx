@@ -1,71 +1,58 @@
 "use client"
 
+<<<<<<< HEAD
 import { useState, useCallback, useMemo } from "react"
 import { Button } from "@/components/ui/button"
+=======
+import { useState } from "react"
+>>>>>>> bb6cbcce9060a13eaeadb737c6b731f8e9bb4f8c
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Wand2, RefreshCw, Download, Copy, Check } from "lucide-react"
+import { Loader2, Sparkles, RefreshCw } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { PostEditor } from "./post-editor"
-import { isSupabaseConfigured } from "@/lib/supabase"
 
 interface PostGeneratorProps {
-  userId: string
+  userId?: string
 }
 
-const OBJECTIVES = [
-  {
-    value: "engagement",
-    label: "Augmenter l'engagement",
-    description: "Posts pour générer des likes, commentaires et partages",
-  },
-  { value: "leads", label: "Générer des leads", description: "Attirer de nouveaux prospects et clients potentiels" },
-  { value: "awareness", label: "Notoriété de marque", description: "Faire connaître votre marque et vos valeurs" },
-  { value: "education", label: "Éducation", description: "Partager des connaissances et expertise" },
-  { value: "motivation", label: "Motivation", description: "Inspirer et motiver votre audience" },
-  { value: "announcement", label: "Annonce", description: "Communiquer sur une nouveauté ou événement" },
-]
-
-const PLATFORMS = [
-  { value: "linkedin", label: "LinkedIn", color: "bg-blue-600" },
-  { value: "twitter", label: "Twitter/X", color: "bg-black" },
-  { value: "instagram", label: "Instagram", color: "bg-pink-600" },
-  { value: "facebook", label: "Facebook", color: "bg-blue-700" },
-]
-
-const SAMPLE_IMAGES = [
-  "/placeholder.svg?height=200&width=300",
-  "/placeholder.svg?height=200&width=300",
-  "/placeholder.svg?height=200&width=300",
-  "/placeholder.svg?height=200&width=300",
-  "/placeholder.svg?height=200&width=300",
-  "/placeholder.svg?height=200&width=300",
-]
-
 export function PostGenerator({ userId }: PostGeneratorProps) {
-  const [step, setStep] = useState(1)
   const [objective, setObjective] = useState("")
-  const [customPrompt, setCustomPrompt] = useState("")
   const [platform, setPlatform] = useState("")
   const [generatedText, setGeneratedText] = useState("")
-  const [selectedImage, setSelectedImage] = useState("")
-  const [suggestedImages, setSuggestedImages] = useState<string[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
-  const [isGeneratingImages, setIsGeneratingImages] = useState(false)
-  const [copied, setCopied] = useState(false)
   const { toast } = useToast()
 
+<<<<<<< HEAD
   const selectedPlatform = useMemo(() => PLATFORMS.find(p => p.value === platform), [platform])
   
   const handleGenerateText = async () => {
     if (!objective && !customPrompt) {
+=======
+  const platforms = [
+    { value: "linkedin", label: "LinkedIn", limit: 3000 },
+    { value: "twitter", label: "Twitter/X", limit: 280 },
+    { value: "instagram", label: "Instagram", limit: 2200 },
+    { value: "facebook", label: "Facebook", limit: 63206 },
+  ]
+
+  const objectives = [
+    "Attirer des freelances",
+    "Post du lundi motivant",
+    "Présenter un nouveau produit",
+    "Partager une réussite client",
+    "Conseils professionnels",
+    "Tendances du secteur",
+  ]
+
+  const handleGenerate = async () => {
+    if (!objective || !platform) {
+>>>>>>> bb6cbcce9060a13eaeadb737c6b731f8e9bb4f8c
       toast({
-        title: "Erreur",
-        description: "Veuillez sélectionner un objectif ou saisir un prompt personnalisé.",
+        title: "Informations manquantes",
+        description: "Veuillez sélectionner un objectif et une plateforme",
         variant: "destructive",
       })
       return
@@ -74,31 +61,74 @@ export function PostGenerator({ userId }: PostGeneratorProps) {
     setIsGenerating(true)
 
     try {
-      const prompt = customPrompt || OBJECTIVES.find((obj) => obj.value === objective)?.description || ""
-      const platformContext = platform ? ` pour ${PLATFORMS.find((p) => p.value === platform)?.label}` : ""
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 2000))
 
-      const response = await fetch("/api/generate-text", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: `${prompt}${platformContext}`,
-          platform,
-          objective,
-        }),
+      const mockTexts = {
+        "Attirer des freelances": `🚀 Freelances talentueux, cette opportunité est pour vous !
+
+Nous recherchons des experts passionnés pour rejoindre notre équipe projet. Si vous excellez dans votre domaine et cherchez des missions stimulantes, parlons-en !
+
+💼 Ce que nous offrons :
+• Projets innovants et variés
+• Rémunération attractive
+• Flexibilité totale
+• Équipe bienveillante
+
+Prêt(e) à relever le défi ? Contactez-nous en MP !
+
+#Freelance #Opportunité #Recrutement`,
+
+        "Post du lundi motivant": `💪 Nouveau lundi, nouvelles possibilités !
+
+Cette semaine, fixez-vous un objectif qui vous fait vibrer. Peu importe sa taille, l'important c'est de commencer.
+
+✨ Rappel du jour :
+Chaque expert a été un débutant
+Chaque succès a commencé par un premier pas
+Chaque rêve mérite sa chance
+
+Alors, quel sera votre premier pas aujourd'hui ?
+
+Partagez vos objectifs de la semaine en commentaire ! 👇
+
+#Motivation #Lundi #Objectifs #Réussite`,
+
+        "Présenter un nouveau produit": `🎉 Grande nouvelle ! Notre dernier produit est enfin là !
+
+Après des mois de développement, nous sommes fiers de vous présenter une solution qui va révolutionner votre quotidien.
+
+🌟 Les points forts :
+• Interface intuitive
+• Performance optimisée
+• Sécurité renforcée
+• Support client 24/7
+
+Découvrez dès maintenant comment il peut transformer votre façon de travailler.
+
+Lien en bio pour en savoir plus ! 👆
+
+#Innovation #NouveauProduit #Technologie`,
+      }
+
+      const selectedPlatform = platforms.find((p) => p.value === platform)
+      let text = mockTexts[objective as keyof typeof mockTexts] || `Contenu généré pour : ${objective}`
+
+      // Adjust text length based on platform
+      if (selectedPlatform && text.length > selectedPlatform.limit) {
+        text = text.substring(0, selectedPlatform.limit - 3) + "..."
+      }
+
+      setGeneratedText(text)
+
+      toast({
+        title: "Contenu généré !",
+        description: "Votre post a été créé avec succès",
       })
-
-      if (!response.ok) throw new Error("Erreur lors de la génération")
-
-      const data = await response.json()
-      setGeneratedText(data.text)
-      setStep(2)
-
-      // Auto-generate images based on the text
-      handleGenerateImages(data.text)
     } catch (error) {
       toast({
         title: "Erreur",
-        description: "Impossible de générer le texte. Réessayez.",
+        description: "Impossible de générer le contenu",
         variant: "destructive",
       })
     } finally {
@@ -106,35 +136,11 @@ export function PostGenerator({ userId }: PostGeneratorProps) {
     }
   }
 
-  const handleGenerateImages = async (text?: string) => {
-    setIsGeneratingImages(true)
-
-    try {
-      const response = await fetch("/api/generate-images", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: text || generatedText,
-          count: 6,
-        }),
-      })
-
-      if (!response.ok) throw new Error("Erreur lors de la génération d'images")
-
-      const data = await response.json()
-      setSuggestedImages(data.images)
-    } catch (error) {
-      // Fallback to sample images
-      setSuggestedImages(SAMPLE_IMAGES)
-      toast({
-        title: "Info",
-        description: "Utilisation d'images d'exemple. La génération d'images sera disponible prochainement.",
-      })
-    } finally {
-      setIsGeneratingImages(false)
-    }
+  const handleRegenerate = () => {
+    handleGenerate()
   }
 
+<<<<<<< HEAD
   const handleRegenerateText = async () => {
     await handleGenerateText()
   }
@@ -213,13 +219,82 @@ export function PostGenerator({ userId }: PostGeneratorProps) {
       />
     )
   }
+=======
+  const selectedPlatform = platforms.find((p) => p.value === platform)
+>>>>>>> bb6cbcce9060a13eaeadb737c6b731f8e9bb4f8c
 
   return (
     <div className="space-y-6">
-      {/* Step 1: Configuration */}
-      {step === 1 && (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5" />
+            Générateur de posts
+          </CardTitle>
+          <CardDescription>Créez du contenu optimisé pour vos réseaux sociaux en quelques clics</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Platform Selection */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Plateforme cible</label>
+            <Select value={platform} onValueChange={setPlatform}>
+              <SelectTrigger>
+                <SelectValue placeholder="Choisissez une plateforme" />
+              </SelectTrigger>
+              <SelectContent>
+                {platforms.map((p) => (
+                  <SelectItem key={p.value} value={p.value}>
+                    {p.label} ({p.limit} caractères max)
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Objective Selection */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Objectif de publication</label>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {objectives.map((obj) => (
+                <Badge
+                  key={obj}
+                  variant={objective === obj ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => setObjective(obj)}
+                >
+                  {obj}
+                </Badge>
+              ))}
+            </div>
+            <Textarea
+              placeholder="Ou décrivez votre objectif personnalisé..."
+              value={objective}
+              onChange={(e) => setObjective(e.target.value)}
+              rows={2}
+            />
+          </div>
+
+          <Button onClick={handleGenerate} disabled={isGenerating} className="w-full">
+            {isGenerating ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Génération en cours...
+              </>
+            ) : (
+              <>
+                <Sparkles className="mr-2 h-4 w-4" />
+                Générer le contenu
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Generated Content */}
+      {generatedText && (
         <Card>
           <CardHeader>
+<<<<<<< HEAD
             <CardTitle className="flex items-center gap-2">
               <Wand2 className="h-5 w-5" />
               Créer un nouveau post
@@ -332,80 +407,38 @@ export function PostGenerator({ userId }: PostGeneratorProps) {
               {platform && (
                 <Badge variant="secondary" className="w-fit">
                   {PLATFORMS.find((p) => p.value === platform)?.label}
+=======
+            <div className="flex items-center justify-between">
+              <CardTitle>Contenu généré</CardTitle>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline">
+                  {generatedText.length}
+                  {selectedPlatform && `/${selectedPlatform.limit}`} caractères
+>>>>>>> bb6cbcce9060a13eaeadb737c6b731f8e9bb4f8c
                 </Badge>
-              )}
-            </CardHeader>
-            <CardContent>
-              <div className="bg-gray-50 p-4 rounded-lg whitespace-pre-wrap">{generatedText}</div>
-            </CardContent>
-          </Card>
-
-          {/* Image Selection */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Images suggérées</CardTitle>
-                  <CardDescription>Sélectionnez une image qui accompagnera votre post</CardDescription>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleGenerateImages()}
-                  disabled={isGeneratingImages}
-                >
-                  <RefreshCw className={`h-4 w-4 ${isGeneratingImages ? "animate-spin" : ""}`} />
+                <Button variant="outline" size="sm" onClick={handleRegenerate} disabled={isGenerating}>
+                  <RefreshCw className="h-4 w-4" />
                 </Button>
               </div>
-            </CardHeader>
-            <CardContent>
-              {isGeneratingImages ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {[...Array(6)].map((_, i) => (
-                    <div key={i} className="aspect-video bg-gray-200 rounded-lg animate-pulse" />
-                  ))}
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {suggestedImages.map((image, index) => (
-                    <div
-                      key={index}
-                      className={`relative cursor-pointer rounded-lg overflow-hidden transition-all hover:scale-105 ${
-                        selectedImage === image ? "ring-2 ring-blue-600" : ""
-                      }`}
-                      onClick={() => setSelectedImage(image)}
-                    >
-                      <img
-                        src={image || "/placeholder.svg"}
-                        alt={`Suggestion ${index + 1}`}
-                        className="w-full aspect-video object-cover"
-                      />
-                      {selectedImage === image && (
-                        <div className="absolute inset-0 bg-blue-600/20 flex items-center justify-center">
-                          <Check className="h-8 w-8 text-white" />
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Actions */}
-          <div className="flex gap-4">
-            <Button variant="outline" onClick={() => setStep(1)}>
-              Retour
-            </Button>
-            <Button onClick={() => setStep(3)} disabled={!selectedImage}>
-              Éditer et finaliser
-            </Button>
-            <Button variant="outline" onClick={handleSavePost}>
-              <Download className="h-4 w-4 mr-2" />
-              Sauvegarder
-            </Button>
-          </div>
-        </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <Textarea
+                value={generatedText}
+                onChange={(e) => setGeneratedText(e.target.value)}
+                rows={8}
+                className="resize-none"
+              />
+              <div className="flex gap-2">
+                <Button className="flex-1">Sauvegarder</Button>
+                <Button variant="outline" className="flex-1 bg-transparent">
+                  Programmer
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   )
