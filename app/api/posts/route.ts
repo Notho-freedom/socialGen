@@ -1,64 +1,84 @@
+import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase"
-import type { NextRequest } from "next/server"
 
-export async function GET(req: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url)
+    const supabase = createClient()
+    const { searchParams } = new URL(request.url)
+
     const userId = searchParams.get("userId")
+    const platform = searchParams.get("platform")
+    const status = searchParams.get("status")
+    const limit = Number.parseInt(searchParams.get("limit") || "10")
+    const offset = Number.parseInt(searchParams.get("offset") || "0")
 
     if (!userId) {
-      return Response.json({ error: "User ID required" }, { status: 400 })
+      return NextResponse.json({ error: "User ID is required" }, { status: 400 })
     }
 
-    const supabase = createClient()
-
-    const { data: posts, error } = await supabase
+    let query = supabase
       .from("posts")
       .select("*")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1)
 
-    if (error) {
-      console.error("Supabase error:", error)
-      return Response.json({ error: "Failed to fetch posts" }, { status: 500 })
+    if (platform && platform !== "all") {
+      query = query.eq("platform", platform)
     }
 
-    return Response.json({ posts })
+    if (status && status !== "all") {
+      query = query.eq("status", status)
+    }
+
+    const { data: posts, error } = await query
+
+    if (error) {
+      console.error("Database error:", error)
+      return NextResponse.json({ error: "Failed to fetch posts" }, { status: 500 })
+    }
+
+    return NextResponse.json({ posts })
   } catch (error) {
     console.error("Error fetching posts:", error)
-    return Response.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const { userId, title, prompt, textGenerated, imageUrl, platform, status } = await req.json()
-
     const supabase = createClient()
+    const body = await request.json()
 
-    const { data: post, error } = await supabase
-      .from("posts")
-      .insert({
-        user_id: userId,
-        title,
-        prompt,
-        text_generated: textGenerated,
-        image_url: imageUrl,
-        platform,
-        status,
-        created_at: new Date().toISOString(),
-      })
-      .select()
-      .single()
+    const { userId, title, content, platform, status = "draft", imageUrl, prompt, objective, scheduledAt } = body
 
-    if (error) {
-      console.error("Supabase error:", error)
-      return Response.json({ error: "Failed to create post" }, { status: 500 })
+    if (!userId || !title || !content || !platform) {
+      return NextResponse.json({ error: "Missing required fields: userId, title, content, platform" }, { status: 400 })
     }
 
-    return Response.json({ post })
+    const postData = {
+      user_id: userId,
+      title,
+      content,
+      platform,
+      status,
+      image_url: imageUrl,
+      prompt,
+      objective,
+      scheduled_at: scheduledAt,
+      published_at: status === "published" ? new Date().toISOString() : null,
+    }
+
+    const { data: post, error } = await supabase.from("posts").insert(postData).select().single()
+
+    if (error) {
+      console.error("Database error:", error)
+      return NextResponse.json({ error: "Failed to create post" }, { status: 500 })
+    }
+
+    return NextResponse.json({ post }, { status: 201 })
   } catch (error) {
     console.error("Error creating post:", error)
-    return Response.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

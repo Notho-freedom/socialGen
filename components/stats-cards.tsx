@@ -1,67 +1,109 @@
+"use client"
+
+import type React from "react"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { TrendingUp, TrendingDown, Eye, Heart, Share2, Users } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
+import { TrendingUp, TrendingDown, Users, Eye, Heart, Calendar } from "lucide-react"
+
+interface StatCardProps {
+  title: string
+  value: string | number
+  description?: string
+  trend?: {
+    value: number
+    isPositive: boolean
+  }
+  icon: React.ElementType
+  progress?: number
+}
+
+function StatCard({ title, value, description, trend, icon: Icon, progress }: StatCardProps) {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <Icon className="h-4 w-4 text-muted-foreground" />
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value}</div>
+        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+        {trend && (
+          <div className="flex items-center pt-1">
+            {trend.isPositive ? (
+              <TrendingUp className="h-4 w-4 text-green-600" />
+            ) : (
+              <TrendingDown className="h-4 w-4 text-red-600" />
+            )}
+            <Badge variant={trend.isPositive ? "default" : "destructive"} className="ml-1 text-xs">
+              {trend.isPositive ? "+" : ""}
+              {trend.value}%
+            </Badge>
+          </div>
+        )}
+        {progress !== undefined && (
+          <div className="mt-3">
+            <Progress value={progress} className="h-2" />
+            <p className="text-xs text-muted-foreground mt-1">{progress}% de l'objectif mensuel</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
 
 export function StatsCards() {
   const stats = [
     {
-      title: "Posts créés",
-      value: "24",
-      change: "+12%",
-      trend: "up",
-      icon: Share2,
+      title: "Posts publiés",
+      value: 24,
       description: "Ce mois-ci",
+      trend: { value: 12, isPositive: true },
+      icon: Calendar,
+      progress: 80,
     },
     {
-      title: "Vues totales",
-      value: "12.5K",
-      change: "+8.2%",
-      trend: "up",
+      title: "Impressions totales",
+      value: "45.2K",
+      description: "Derniers 30 jours",
+      trend: { value: 8.5, isPositive: true },
       icon: Eye,
-      description: "Cette semaine",
     },
     {
       title: "Engagement",
       value: "3.2K",
-      change: "-2.1%",
-      trend: "down",
+      description: "Likes, commentaires, partages",
+      trend: { value: 15.3, isPositive: true },
       icon: Heart,
-      description: "Interactions",
     },
     {
-      title: "Followers",
-      value: "1.8K",
-      change: "+5.4%",
-      trend: "up",
+      title: "Nouveaux followers",
+      value: 156,
+      description: "Cette semaine",
+      trend: { value: 2.1, isPositive: false },
       icon: Users,
-      description: "Nouveaux abonnés",
+    },
+    {
+      title: "Taux d'engagement",
+      value: "7.2%",
+      description: "Moyenne sur 30 jours",
+      trend: { value: 0.8, isPositive: true },
+      icon: TrendingUp,
+    },
+    {
+      title: "Posts programmés",
+      value: 8,
+      description: "Prochains 7 jours",
+      icon: Calendar,
     },
   ]
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      {stats.map((stat) => {
-        const Icon = stat.icon
-        const TrendIcon = stat.trend === "up" ? TrendingUp : TrendingDown
-        const trendColor = stat.trend === "up" ? "text-green-600" : "text-red-600"
-
-        return (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <Icon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <div className="flex items-center space-x-1 text-xs text-muted-foreground">
-                <TrendIcon className={`h-3 w-3 ${trendColor}`} />
-                <span className={trendColor}>{stat.change}</span>
-                <span>par rapport au mois dernier</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">{stat.description}</p>
-            </CardContent>
-          </Card>
-        )
-      })}
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {stats.map((stat, index) => (
+        <StatCard key={index} {...stat} />
+      ))}
     </div>
   )
 }

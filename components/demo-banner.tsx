@@ -1,18 +1,40 @@
+"use client"
+
+import { useState } from "react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Info } from "lucide-react"
-import { isSupabaseConfigured } from "@/lib/supabase"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { X, Sparkles, Zap } from "lucide-react"
 
 export function DemoBanner() {
-  if (isSupabaseConfigured()) {
-    return null
-  }
+  const [isVisible, setIsVisible] = useState(true)
+
+  if (!isVisible) return null
 
   return (
-    <Alert className="mb-6">
-      <Info className="h-4 w-4" />
-      <AlertDescription>
-        <strong>Mode démo activé</strong> - Toutes les fonctionnalités sont disponibles avec des données de test.
-        Configurez Supabase pour activer la persistance des données.
+    <Alert className="border-amber-200 bg-amber-50 text-amber-800">
+      <Sparkles className="h-4 w-4" />
+      <AlertDescription className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <Badge variant="secondary" className="bg-amber-100 text-amber-800">
+            <Zap className="mr-1 h-3 w-3" />
+            DÉMO
+          </Badge>
+          <span>Vous utilisez la version de démonstration. Les fonctionnalités de publication sont simulées.</span>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button variant="outline" size="sm" className="bg-white">
+            Passer en version complète
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsVisible(false)}
+            className="text-amber-600 hover:text-amber-700"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
       </AlertDescription>
     </Alert>
   )

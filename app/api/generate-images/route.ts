@@ -1,32 +1,50 @@
-import type { NextRequest } from "next/server"
+import { type NextRequest, NextResponse } from "next/server"
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const { text, count = 6 } = await req.json()
+    const { prompt, style = "professional" } = await request.json()
 
-    // For now, return placeholder images
-    // In production, you would integrate with DALL-E, Stability AI, or Fal AI
-    const images = Array.from({ length: count }, (_, i) => {
-      const queries = [
-        "professional business meeting",
-        "modern office workspace",
-        "team collaboration",
-        "digital marketing concept",
-        "success and growth chart",
-        "creative brainstorming session",
-        "social media marketing",
-        "content creation",
-        "business strategy",
-        "innovation and technology",
-      ]
+    if (!prompt) {
+      return NextResponse.json({ error: "Prompt is required" }, { status: 400 })
+    }
 
-      const query = queries[i % queries.length]
-      return `/placeholder.svg?height=400&width=600&query=${encodeURIComponent(query)}`
+    // For demo purposes, return placeholder images
+    // In production, you would integrate with DALL-E, Midjourney, or Stable Diffusion
+    const placeholderImages = [
+      {
+        id: 1,
+        url: `/placeholder.svg?height=400&width=600&text=${encodeURIComponent("Business Professional")}`,
+        alt: "Business Professional",
+        style: "professional",
+      },
+      {
+        id: 2,
+        url: `/placeholder.svg?height=400&width=600&text=${encodeURIComponent("Creative Design")}`,
+        alt: "Creative Design",
+        style: "creative",
+      },
+      {
+        id: 3,
+        url: `/placeholder.svg?height=400&width=600&text=${encodeURIComponent("Technology Innovation")}`,
+        alt: "Technology Innovation",
+        style: "modern",
+      },
+      {
+        id: 4,
+        url: `/placeholder.svg?height=400&width=600&text=${encodeURIComponent("Team Collaboration")}`,
+        alt: "Team Collaboration",
+        style: "corporate",
+      },
+    ]
+
+    // Filter images based on style preference
+    const filteredImages = style === "all" ? placeholderImages : placeholderImages.filter((img) => img.style === style)
+
+    return NextResponse.json({
+      images: filteredImages.length > 0 ? filteredImages : placeholderImages,
     })
-
-    return Response.json({ images })
   } catch (error) {
     console.error("Error generating images:", error)
-    return Response.json({ error: "Failed to generate images" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to generate images" }, { status: 500 })
   }
 }

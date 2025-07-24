@@ -5,18 +5,22 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import {
-  Home,
-  PlusCircle,
-  History,
-  Settings,
   BarChart3,
   Calendar,
+  ChevronDown,
+  FileText,
+  History,
+  Home,
+  ImageIcon,
+  PlusCircle,
+  Settings,
+  Sparkles,
+  TrendingUp,
   Users,
-  Zap,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react"
 
 interface SidebarProps {
@@ -24,127 +28,178 @@ interface SidebarProps {
 }
 
 export function Sidebar({ className }: SidebarProps) {
-  const [collapsed, setCollapsed] = useState(false)
   const pathname = usePathname()
+  const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false)
 
-  const navigation = [
+  const mainNavigation = [
     {
-      name: "Vue d'ensemble",
+      name: "Dashboard",
       href: "/dashboard",
       icon: Home,
       current: pathname === "/dashboard",
     },
     {
-      name: "Nouveau post",
-      href: "/dashboard/create",
-      icon: PlusCircle,
-      current: pathname === "/dashboard/create",
+      name: "Générateur",
+      href: "/generator",
+      icon: Sparkles,
+      current: pathname === "/generator",
+      badge: "IA",
     },
     {
       name: "Historique",
-      href: "/dashboard/history",
+      href: "/history",
       icon: History,
-      current: pathname === "/dashboard/history",
+      current: pathname === "/history",
     },
     {
-      name: "Planification",
-      href: "/dashboard/schedule",
+      name: "Planificateur",
+      href: "/scheduler",
       icon: Calendar,
-      current: pathname === "/dashboard/schedule",
-    },
-    {
-      name: "Analytics",
-      href: "/dashboard/analytics",
-      icon: BarChart3,
-      current: pathname === "/dashboard/analytics",
+      current: pathname === "/scheduler",
+      badge: "3",
     },
   ]
 
-  const tools = [
+  const analyticsNavigation = [
     {
-      name: "Templates",
-      href: "/dashboard/templates",
-      icon: Zap,
-      current: pathname === "/dashboard/templates",
+      name: "Vue d'ensemble",
+      href: "/analytics",
+      icon: BarChart3,
+      current: pathname === "/analytics",
     },
     {
-      name: "Équipe",
-      href: "/dashboard/team",
+      name: "Engagement",
+      href: "/analytics/engagement",
+      icon: TrendingUp,
+      current: pathname === "/analytics/engagement",
+    },
+    {
+      name: "Audience",
+      href: "/analytics/audience",
       icon: Users,
-      current: pathname === "/dashboard/team",
+      current: pathname === "/analytics/audience",
+    },
+  ]
+
+  const contentNavigation = [
+    {
+      name: "Brouillons",
+      href: "/drafts",
+      icon: FileText,
+      current: pathname === "/drafts",
+      count: 5,
     },
     {
-      name: "Paramètres",
-      href: "/dashboard/settings",
-      icon: Settings,
-      current: pathname === "/dashboard/settings",
+      name: "Images",
+      href: "/images",
+      icon: ImageIcon,
+      current: pathname === "/images",
     },
   ]
 
   return (
-    <div
-      className={cn(
-        "flex flex-col border-r bg-background transition-all duration-300",
-        collapsed ? "w-16" : "w-64",
-        className,
-      )}
-    >
-      {/* Toggle Button */}
-      <div className="flex h-16 items-center justify-end px-4 border-b">
-        <Button variant="ghost" size="icon" onClick={() => setCollapsed(!collapsed)} className="h-8 w-8">
-          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-        </Button>
+    <div className={cn("flex h-full w-64 flex-col bg-background", className)}>
+      <div className="flex h-16 items-center border-b px-6">
+        <Link href="/dashboard" className="flex items-center space-x-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+            <Sparkles className="h-4 w-4 text-primary-foreground" />
+          </div>
+          <span className="font-bold">SocialGen AI</span>
+        </Link>
       </div>
 
-      <ScrollArea className="flex-1 px-3 py-4">
-        <div className="space-y-6">
-          {/* Main Navigation */}
-          <div className="space-y-1">
-            {!collapsed && (
-              <h2 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Principal</h2>
-            )}
-            <nav className="space-y-1">
-              {navigation.map((item) => {
-                const Icon = item.icon
-                return (
-                  <Link key={item.name} href={item.href}>
-                    <Button
-                      variant={item.current ? "secondary" : "ghost"}
-                      className={cn("w-full justify-start", collapsed && "px-2", item.current && "bg-secondary")}
-                    >
-                      <Icon className={cn("h-4 w-4", !collapsed && "mr-3")} />
-                      {!collapsed && <span>{item.name}</span>}
-                    </Button>
-                  </Link>
-                )
-              })}
-            </nav>
-          </div>
-
-          {/* Tools */}
-          <div className="space-y-1">
-            {!collapsed && (
-              <h2 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Outils</h2>
-            )}
-            <nav className="space-y-1">
-              {tools.map((item) => {
-                const Icon = item.icon
-                return (
-                  <Link key={item.name} href={item.href}>
-                    <Button
-                      variant={item.current ? "secondary" : "ghost"}
-                      className={cn("w-full justify-start", collapsed && "px-2", item.current && "bg-secondary")}
-                    >
-                      <Icon className={cn("h-4 w-4", !collapsed && "mr-3")} />
-                      {!collapsed && <span>{item.name}</span>}
-                    </Button>
-                  </Link>
-                )
-              })}
-            </nav>
-          </div>
+      <div className="flex-1 overflow-auto py-4">
+        <div className="space-y-1 px-3">
+          {/* Quick Action */}
+          <Button className="w-full justify-start" size="sm">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Nouveau post
+          </Button>
         </div>
-      </ScrollArea>
+
+        <Separator className="my-4" />
+
+        {/* Main Navigation */}
+        <div className="space-y-1 px-3">
+          <div className="px-3 py-2">
+            <h2 className="mb-2 text-xs font-semibold uppercase tracking-tight text-muted-foreground">Principal</h2>
+          </div>
+          {mainNavigation.map((item) => (
+            <Link key={item.name} href={item.href}>
+              <Button variant={item.current ? "secondary" : "ghost"} className="w-full justify-start" size="sm">
+                <item.icon className="mr-2 h-4 w-4" />
+                {item.name}
+                {item.badge && (
+                  <Badge variant="secondary" className="ml-auto">
+                    {item.badge}
+                  </Badge>
+                )}
+              </Button>
+            </Link>
+          ))}
+        </div>
+
+        <Separator className="my-4" />
+
+        {/* Analytics Section */}
+        <div className="space-y-1 px-3">
+          <Collapsible open={isAnalyticsOpen} onOpenChange={setIsAnalyticsOpen}>
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" className="w-full justify-start" size="sm">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                Analytics
+                <ChevronDown className="ml-auto h-4 w-4" />
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-1">
+              {analyticsNavigation.map((item) => (
+                <Link key={item.name} href={item.href}>
+                  <Button
+                    variant={item.current ? "secondary" : "ghost"}
+                    className="w-full justify-start pl-8"
+                    size="sm"
+                  >
+                    <item.icon className="mr-2 h-4 w-4" />
+                    {item.name}
+                  </Button>
+                </Link>
+              ))}
+            </CollapsibleContent>
+          </Collapsible>
+        </div>
+
+        <Separator className="my-4" />
+
+        {/* Content Management */}
+        <div className="space-y-1 px-3">
+          <div className="px-3 py-2">
+            <h2 className="mb-2 text-xs font-semibold uppercase tracking-tight text-muted-foreground">Contenu</h2>
+          </div>
+          {contentNavigation.map((item) => (
+            <Link key={item.name} href={item.href}>
+              <Button variant={item.current ? "secondary" : "ghost"} className="w-full justify-start" size="sm">
+                <item.icon className="mr-2 h-4 w-4" />
+                {item.name}
+                {item.count && (
+                  <Badge variant="outline" className="ml-auto">
+                    {item.count}
+                  </Badge>
+                )}
+              </Button>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Bottom Section */}
+      <div className="border-t p-4">
+        <Link href="/settings">
+          <Button variant={pathname === "/settings" ? "secondary" : "ghost"} className="w-full justify-start" size="sm">
+            <Settings className="mr-2 h-4 w-4" />
+            Paramètres
+          </Button>
+        </Link>
+      </div>
     </div>
   )
 }
